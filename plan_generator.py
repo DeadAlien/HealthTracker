@@ -4,8 +4,17 @@ import json
 import os
 
 def load_meals():
-    with open('meals.json', 'r') as f:
-        return json.load(f)
+    try:
+        with open('meals.json', 'r') as f:
+            meals = json.load(f)
+            if not isinstance(meals, list):
+                print('meals.json is not a list!')
+                return []
+            print(f"Loaded {len(meals)} meals from meals.json")
+            return meals
+    except Exception as e:
+        print(f"Error loading meals.json: {e}")
+        return []
 
 def generate_meal_plan(profile, goal):
     meals = load_meals()
@@ -18,25 +27,42 @@ def generate_meal_plan(profile, goal):
     for meal in ['Breakfast', 'Lunch', 'Snack', 'Dinner']:
         options = [m for m in meals if m['diet'] == user_diet or user_diet == 'No preference']
         if not options:
+            print(f"No meals found for diet {user_diet}, using all meals as fallback.")
             options = meals
-        meal_food = random.choice(options)
-        plan.append({'meal': meal, 'food': meal_food['name'], 'calories': meal_food['calories']})
+        if not options:
+            plan.append({'meal': meal, 'food': 'No meal found', 'calories': 0})
+        else:
+            meal_food = random.choice(options)
+            plan.append({'meal': meal, 'food': meal_food['name'], 'calories': meal_food['calories']})
     return plan
 
 def load_exercises():
-    with open('exercises.json', 'r') as f:
-        return json.load(f)
+    try:
+        with open('exercises.json', 'r') as f:
+            exercises = json.load(f)
+            if not isinstance(exercises, list):
+                print('exercises.json is not a list!')
+                return []
+            print(f"Loaded {len(exercises)} exercises from exercises.json")
+            return exercises
+    except Exception as e:
+        print(f"Error loading exercises.json: {e}")
+        return []
 
 def generate_workout_schedule(profile, goal, location='home'):
     exercises = load_exercises()
     # Filter by location and (optionally) by goal/type
     filtered = [e for e in exercises if e['location'] == location]
     if not filtered:
+        print(f"No exercises found for location {location}, using all exercises as fallback.")
         filtered = exercises
     schedule = []
     for day in range(1, 8):
-        workout = random.choice(filtered)
-        schedule.append({'day': f'Day {day}', 'workout': workout['name']})
+        if not filtered:
+            schedule.append({'day': f'Day {day}', 'workout': 'No exercise found'})
+        else:
+            workout = random.choice(filtered)
+            schedule.append({'day': f'Day {day}', 'workout': workout['name']})
     return schedule
 
 def generate_routine(profile, goal, location='home', period='weekly'):
