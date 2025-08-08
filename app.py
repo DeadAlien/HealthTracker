@@ -1,3 +1,6 @@
+from guidance import get_fitness_advice, get_goal_feedback
+from tracking import log_activity, get_user_logs
+from plan_generator import generate_routine
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from auth import register_user, login_user
 from profile import get_user_profile, update_user_profile
@@ -49,13 +52,53 @@ def login():
             flash(user)
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'email' not in session:
         return redirect(url_for('login'))
     email = session['email']
     profile = get_user_profile(email)
-    return render_template('dashboard.html', email=email, profile=profile)
+    routine = None
+    period = request.args.get('period', 'weekly')
+    location = request.args.get('location', 'home')
+    goal = profile.get('fitness_goals', ['Weight Maintenance'])
+    if isinstance(goal, list):
+        goal = goal[0] if goal else 'Weight Maintenance'
+    if request.args.get('generate'):
+        routine = generate_routine(profile, goal, location, period)
+
+    # Handle activity/weight log POST
+    if request.method == 'POST':
+        meals = request.form.get('meals')
+        workout = request.form.get('workout')
+        water = request.form.get('water')
+        sleep = request.form.get('sleep')
+        weight = request.form.get('weight')
+        measurements = request.form.get('measurements')
+        log_activity(email, meals=meals, workout=workout, water=water, sleep=sleep, weight=weight, measurements=measurements)
+        flash('Log saved!')
+        return redirect(url_for('dashboard'))
+
+    logs = get_user_logs(email)
+    # Prepare progress summary (last 7 days)
+    sorted_dates = sorted(logs.keys(), reverse=True)
+    recent_logs = [dict(date=d, **logs[d]) for d in sorted_dates[:7]]
+    advice = get_fitness_advice(profile)
+    goal_feedback = get_goal_feedback(profile)
+    return render_template('dashboard.html', email=email, profile=profile, routine=routine, logs=recent_logs, advice=advice, goal_feedback=goal_feedback)
+@app.route('/routine', methods=['GET'])
+def routine():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    email = session['email']
+    profile = get_user_profile(email)
+    period = request.args.get('period', 'weekly')
+    location = request.args.get('location', 'home')
+    goal = profile.get('fitness_goals', ['Weight Maintenance'])
+    if isinstance(goal, list):
+        goal = goal[0] if goal else 'Weight Maintenance'
+    routine = generate_routine(profile, goal, location, period)
+    return render_template('routine.html', routine=routine, period=period, location=location)
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():

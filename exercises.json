@@ -1,0 +1,8 @@
+[
+  {"name": "Push-ups", "type": "strength", "location": "home", "muscle": "chest", "difficulty": "easy"},
+  {"name": "Squats", "type": "strength", "location": "home", "muscle": "legs", "difficulty": "easy"},
+  {"name": "Bench Press", "type": "strength", "location": "gym", "muscle": "chest", "difficulty": "medium"},
+  {"name": "Deadlift", "type": "strength", "location": "gym", "muscle": "back", "difficulty": "hard"},
+  {"name": "HIIT", "type": "cardio", "location": "home", "muscle": "full body", "difficulty": "medium"},
+  {"name": "Treadmill", "type": "cardio", "location": "gym", "muscle": "legs", "difficulty": "easy"}
+]

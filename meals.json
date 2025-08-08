@@ -1,0 +1,12 @@
+[
+  {"name": "Grilled chicken", "diet": "High Protein", "calories": 350},
+  {"name": "Paneer tikka", "diet": "High Protein", "calories": 300},
+  {"name": "Dal", "diet": "Vegetarian", "calories": 250},
+  {"name": "Quinoa salad", "diet": "Vegan", "calories": 220},
+  {"name": "Chicken curry", "diet": "Balanced/Mixed", "calories": 400},
+  {"name": "Paneer bhurji", "diet": "Low Carb / Keto", "calories": 320},
+  {"name": "Rice", "diet": "High Carb", "calories": 200},
+  {"name": "Egg omelette", "diet": "Low Carb / Keto", "calories": 250},
+  {"name": "Idli", "diet": "Gluten-Free", "calories": 120},
+  {"name": "Upma", "diet": "No preference", "calories": 180}
+]

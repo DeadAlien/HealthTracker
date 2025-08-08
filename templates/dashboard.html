@@ -16,5 +16,73 @@
     {% endfor %}
     </ul>
     <a href="/edit">Edit Profile</a> | <a href="/logout">Logout</a>
+    <hr>
+    <h3>Guidance & Advice</h3>
+    <ul>
+    {% for tip in advice %}
+        <li>{{ tip }}</li>
+    {% endfor %}
+    </ul>
+    <b>Goal Feedback:</b> {{ goal_feedback }}
+    <hr>
+    <h3>Log Daily Activities</h3>
+    <form method="post">
+        Meals: <input name="meals" placeholder="What did you eat?"> <br>
+        Workout: <input name="workout" placeholder="Workout done"> <br>
+        Water Intake (ml): <input name="water" type="number" min="0"> <br>
+        Sleep (hours): <input name="sleep" type="number" min="0" max="24"> <br>
+        Weight (kg): <input name="weight" type="number" step="0.1"> <br>
+        Measurements: <input name="measurements" placeholder="e.g. Waist: 80cm"> <br>
+        <button type="submit">Save Log</button>
+    </form>
+
+    <h3>Recent Progress (Last 7 Days)</h3>
+    <table border="1">
+        <tr><th>Date</th><th>Meals</th><th>Workout</th><th>Water (ml)</th><th>Sleep (h)</th><th>Weight (kg)</th><th>Measurements</th></tr>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.date }}</td>
+            <td>{{ log.meals or '' }}</td>
+            <td>{{ log.workout or '' }}</td>
+            <td>{{ log.water or '' }}</td>
+            <td>{{ log.sleep or '' }}</td>
+            <td>{{ log.weight or '' }}</td>
+            <td>{{ log.measurements or '' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <hr>
+    <h3>Generate Personalized Routine</h3>
+    <form method="get" action="/dashboard">
+        <label>Period:</label>
+        <select name="period">
+            <option value="daily">Daily</option>
+            <option value="weekly" selected>Weekly</option>
+            <option value="on-demand">On-Demand</option>
+        </select>
+        <label>Workout Location:</label>
+        <select name="location">
+            <option value="home">Home</option>
+            <option value="gym">Gym</option>
+        </select>
+        <button type="submit" name="generate" value="1">Generate</button>
+    </form>
+    {% if routine %}
+        <h3>Your Routine ({{ routine|length }} days)</h3>
+        <ul>
+        {% for day in routine %}
+            <li><b>{{ day.day }}</b><br>
+                <u>Meals:</u>
+                <ul>
+                {% for meal in day.meals %}
+                    <li>{{ meal.meal }}: {{ meal.food }} ({{ meal.calories }} kcal)</li>
+                {% endfor %}
+                </ul>
+                <u>Workout:</u> {{ day.workout.workout if day.workout is mapping else day.workout }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 </body>
 </html>
