@@ -17,6 +17,14 @@
     </ul>
     <a href="/edit">Edit Profile</a> | <a href="/logout">Logout</a>
     <hr>
+    <h3>Guidance & Advice</h3>
+    <ul>
+    {% for tip in advice %}
+        <li>{{ tip }}</li>
+    {% endfor %}
+    </ul>
+    <b>Goal Feedback:</b> {{ goal_feedback }}
+    <hr>
     <h3>Log Daily Activities</h3>
     <form method="post">
         Meals: <input name="meals" placeholder="What did you eat?"> <br>

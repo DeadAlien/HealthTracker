@@ -1,18 +1,14 @@
+
 import random
+import json
+import os
+
+def load_meals():
+    with open('meals.json', 'r') as f:
+        return json.load(f)
 
 def generate_meal_plan(profile, goal):
-    # Example foods for each diet type
-    foods = {
-        'High Protein': ['Grilled chicken', 'Paneer tikka', 'Egg whites', 'Tofu stir-fry', 'Greek yogurt'],
-        'Vegetarian': ['Dal', 'Paneer curry', 'Mixed veg', 'Chana masala', 'Curd rice'],
-        'Vegan': ['Quinoa salad', 'Chickpea curry', 'Tofu stir-fry', 'Vegan smoothie', 'Lentil soup'],
-        'Balanced/Mixed': ['Chicken curry', 'Veg pulao', 'Fish fry', 'Mixed dal', 'Chapati sabzi'],
-        'Low Carb / Keto': ['Paneer bhurji', 'Egg omelette', 'Chicken salad', 'Zucchini noodles', 'Avocado salad'],
-        'High Carb': ['Rice', 'Banana', 'Potato curry', 'Oats porridge', 'Sweet potato'],
-        'Paleo': ['Grilled fish', 'Egg salad', 'Fruit bowl', 'Chicken roast', 'Veg stir-fry'],
-        'Gluten-Free': ['Rice', 'Dosa', 'Idli', 'Poha', 'Sabudana khichdi'],
-        'No preference': ['Upma', 'Poha', 'Paratha', 'Dosa', 'Egg curry']
-    }
+    meals = load_meals()
     # Calorie targets by goal
     calories = {'Fat Loss': 1500, 'Muscle Gain': 2500, 'Weight Maintenance': 2000}
     user_diet = profile.get('diet', 'Balanced/Mixed')
@@ -20,28 +16,27 @@ def generate_meal_plan(profile, goal):
     cal_target = calories[user_goal]
     plan = []
     for meal in ['Breakfast', 'Lunch', 'Snack', 'Dinner']:
-        meal_food = random.choice(foods.get(user_diet, foods['Balanced/Mixed']))
-        plan.append({'meal': meal, 'food': meal_food, 'calories': cal_target // 4})
+        options = [m for m in meals if m['diet'] == user_diet or user_diet == 'No preference']
+        if not options:
+            options = meals
+        meal_food = random.choice(options)
+        plan.append({'meal': meal, 'food': meal_food['name'], 'calories': meal_food['calories']})
     return plan
 
+def load_exercises():
+    with open('exercises.json', 'r') as f:
+        return json.load(f)
+
 def generate_workout_schedule(profile, goal, location='home'):
-    # Example workouts
-    home_workouts = {
-        'Fat Loss': ['HIIT', 'Jump rope', 'Bodyweight circuit', 'Yoga'],
-        'Muscle Gain': ['Push-ups', 'Pull-ups', 'Squats', 'Dips'],
-        'Weight Maintenance': ['Brisk walk', 'Yoga', 'Stretching', 'Cycling']
-    }
-    gym_workouts = {
-        'Fat Loss': ['Treadmill', 'Elliptical', 'HIIT', 'Rowing'],
-        'Muscle Gain': ['Bench press', 'Deadlift', 'Squats', 'Lat pulldown'],
-        'Weight Maintenance': ['Treadmill', 'Cycling', 'Stretching', 'Swimming']
-    }
-    user_goal = goal if goal in home_workouts else 'Weight Maintenance'
-    workouts = gym_workouts if location == 'gym' else home_workouts
+    exercises = load_exercises()
+    # Filter by location and (optionally) by goal/type
+    filtered = [e for e in exercises if e['location'] == location]
+    if not filtered:
+        filtered = exercises
     schedule = []
     for day in range(1, 8):
-        workout = random.choice(workouts[user_goal])
-        schedule.append({'day': f'Day {day}', 'workout': workout})
+        workout = random.choice(filtered)
+        schedule.append({'day': f'Day {day}', 'workout': workout['name']})
     return schedule
 
 def generate_routine(profile, goal, location='home', period='weekly'):

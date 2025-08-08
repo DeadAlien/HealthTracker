@@ -1,3 +1,4 @@
+from guidance import get_fitness_advice, get_goal_feedback
 from tracking import log_activity, get_user_logs
 from plan_generator import generate_routine
 from flask import Flask, render_template, request, redirect, url_for, session, flash
@@ -82,7 +83,9 @@ def dashboard():
     # Prepare progress summary (last 7 days)
     sorted_dates = sorted(logs.keys(), reverse=True)
     recent_logs = [dict(date=d, **logs[d]) for d in sorted_dates[:7]]
-    return render_template('dashboard.html', email=email, profile=profile, routine=routine, logs=recent_logs)
+    advice = get_fitness_advice(profile)
+    goal_feedback = get_goal_feedback(profile)
+    return render_template('dashboard.html', email=email, profile=profile, routine=routine, logs=recent_logs, advice=advice, goal_feedback=goal_feedback)
 @app.route('/routine', methods=['GET'])
 def routine():
     if 'email' not in session:
