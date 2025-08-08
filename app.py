@@ -1,3 +1,4 @@
+from plan_generator import generate_routine
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from auth import register_user, login_user
 from profile import get_user_profile, update_user_profile
@@ -55,7 +56,29 @@ def dashboard():
         return redirect(url_for('login'))
     email = session['email']
     profile = get_user_profile(email)
-    return render_template('dashboard.html', email=email, profile=profile)
+    routine = None
+    period = request.args.get('period', 'weekly')
+    location = request.args.get('location', 'home')
+    # Use first fitness goal if multiple
+    goal = profile.get('fitness_goals', ['Weight Maintenance'])
+    if isinstance(goal, list):
+        goal = goal[0] if goal else 'Weight Maintenance'
+    if request.args.get('generate'):
+        routine = generate_routine(profile, goal, location, period)
+    return render_template('dashboard.html', email=email, profile=profile, routine=routine)
+@app.route('/routine', methods=['GET'])
+def routine():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    email = session['email']
+    profile = get_user_profile(email)
+    period = request.args.get('period', 'weekly')
+    location = request.args.get('location', 'home')
+    goal = profile.get('fitness_goals', ['Weight Maintenance'])
+    if isinstance(goal, list):
+        goal = goal[0] if goal else 'Weight Maintenance'
+    routine = generate_routine(profile, goal, location, period)
+    return render_template('routine.html', routine=routine, period=period, location=location)
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():

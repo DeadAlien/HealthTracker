@@ -14,5 +14,23 @@
       "diet": "",
       "fitness_goals": ""
     }
+  },
+  "Dalia@gmail.com": {
+    "email": "Dalia@gmail.com",
+    "password": "dev",
+    "mobile": "123",
+    "social_id": null,
+    "profile": {
+      "age": "25",
+      "gender": "F",
+      "height": "158",
+      "weight": "84",
+      "goal_weight": "60",
+      "activity": "Lightly Active",
+      "diet": "High Protein",
+      "fitness_goals": [
+        "Fat Loss"
+      ]
+    }
   }
 }

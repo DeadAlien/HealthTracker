@@ -16,5 +16,37 @@
     {% endfor %}
     </ul>
     <a href="/edit">Edit Profile</a> | <a href="/logout">Logout</a>
+    <hr>
+    <h3>Generate Personalized Routine</h3>
+    <form method="get" action="/dashboard">
+        <label>Period:</label>
+        <select name="period">
+            <option value="daily">Daily</option>
+            <option value="weekly" selected>Weekly</option>
+            <option value="on-demand">On-Demand</option>
+        </select>
+        <label>Workout Location:</label>
+        <select name="location">
+            <option value="home">Home</option>
+            <option value="gym">Gym</option>
+        </select>
+        <button type="submit" name="generate" value="1">Generate</button>
+    </form>
+    {% if routine %}
+        <h3>Your Routine ({{ routine|length }} days)</h3>
+        <ul>
+        {% for day in routine %}
+            <li><b>{{ day.day }}</b><br>
+                <u>Meals:</u>
+                <ul>
+                {% for meal in day.meals %}
+                    <li>{{ meal.meal }}: {{ meal.food }} ({{ meal.calories }} kcal)</li>
+                {% endfor %}
+                </ul>
+                <u>Workout:</u> {{ day.workout.workout if day.workout is mapping else day.workout }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 </body>
 </html>
