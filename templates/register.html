@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><title>Register</title></head>
+<body>
+    <h2>Register</h2>
+    <form method="post">
+        Email: <input name="email" required><br>
+        Password: <input name="password" type="password" required><br>
+        Mobile: <input name="mobile"><br>
+        Age: <input name="age"><br>
+        Gender: <input name="gender"><br>
+        Height (cm): <input name="height"><br>
+        Weight (kg): <input name="weight"><br>
+        Goal Weight (kg): <input name="goal_weight"><br>
+        Activity Level:
+        <select name="activity" required>
+            <option value="Sedentary">🛋️ Sedentary (Little or no exercise)</option>
+            <option value="Lightly Active">🚶 Lightly Active (Light exercise 1–3 days/week)</option>
+            <option value="Moderately Active">🏃 Moderately Active (Moderate exercise 3–5 days/week)</option>
+            <option value="Very Active">🏋️ Very Active (Hard exercise 6–7 days/week)</option>
+            <option value="Super Active">🔥 Super Active (Intense training or physical job)</option>
+        </select><br>
+        Diet Preference:
+        <select name="diet" required>
+            <option value="High Protein">🍗 High Protein</option>
+            <option value="Vegetarian">🥗 Vegetarian</option>
+            <option value="Vegan">🥑 Vegan</option>
+            <option value="Balanced/Mixed">🍚 Balanced/Mixed</option>
+            <option value="Low Carb / Keto">🥩 Low Carb / Keto</option>
+            <option value="High Carb">🍞 High Carb</option>
+            <option value="Paleo">🍱 Paleo</option>
+            <option value="Gluten-Free">🥛 Gluten-Free</option>
+            <option value="No preference">🚫 No preference</option>
+        </select><br>
+        Fitness Goals (Choose one or more):<br>
+        <select name="fitness_goals" multiple size="5" required>
+            <option value="Fat Loss">🔥 Fat Loss</option>
+            <option value="Muscle Gain">💪 Muscle Gain</option>
+            <option value="Weight Maintenance">⚖️ Weight Maintenance</option>
+            <option value="Flexibility & Mobility">🧘 Flexibility & Mobility</option>
+            <option value="Cardiovascular Health">❤️ Cardiovascular Health</option>
+            <option value="Mental Well-being">🧠 Mental Well-being</option>
+            <option value="Strength & Performance">🏋️ Strength & Performance</option>
+            <option value="Endurance / Stamina">🏃 Endurance / Stamina</option>
+            <option value="Medical Rehabilitation">🩺 Medical Rehabilitation</option>
+        </select><br>
+        <button type="submit">Register</button>
+    </form>
+    <a href="/login">Already have an account? Login</a>
+</body>
+</html>

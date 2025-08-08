@@ -1,0 +1,18 @@
+{
+  "dev@gmail.com": {
+    "email": "dev@gmail.com",
+    "password": "dev",
+    "mobile": "123",
+    "social_id": null,
+    "profile": {
+      "age": "25",
+      "gender": "M",
+      "height": "156",
+      "weight": "62",
+      "goal_weight": "56",
+      "activity": "non",
+      "diet": "",
+      "fitness_goals": ""
+    }
+  }
+}

@@ -1,0 +1,4 @@
+flask
+# requirements.txt
+rich
+flask

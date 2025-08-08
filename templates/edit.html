@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit Profile</title></head>
+<body>
+    <h2>Edit Profile</h2>
+    <form method="post">
+    {% for k, v in profile.items() %}
+        {% if k == 'activity' %}
+            Activity Level:
+            <select name="activity" required>
+                <option value="Sedentary" {% if v=='Sedentary' %}selected{% endif %}>🛋️ Sedentary (Little or no exercise)</option>
+                <option value="Lightly Active" {% if v=='Lightly Active' %}selected{% endif %}>🚶 Lightly Active (Light exercise 1–3 days/week)</option>
+                <option value="Moderately Active" {% if v=='Moderately Active' %}selected{% endif %}>🏃 Moderately Active (Moderate exercise 3–5 days/week)</option>
+                <option value="Very Active" {% if v=='Very Active' %}selected{% endif %}>🏋️ Very Active (Hard exercise 6–7 days/week)</option>
+                <option value="Super Active" {% if v=='Super Active' %}selected{% endif %}>🔥 Super Active (Intense training or physical job)</option>
+            </select><br>
+        {% elif k == 'diet' %}
+            Diet Preference:
+            <select name="diet" required>
+                <option value="High Protein" {% if v=='High Protein' %}selected{% endif %}>🍗 High Protein</option>
+                <option value="Vegetarian" {% if v=='Vegetarian' %}selected{% endif %}>🥗 Vegetarian</option>
+                <option value="Vegan" {% if v=='Vegan' %}selected{% endif %}>🥑 Vegan</option>
+                <option value="Balanced/Mixed" {% if v=='Balanced/Mixed' %}selected{% endif %}>🍚 Balanced/Mixed</option>
+                <option value="Low Carb / Keto" {% if v=='Low Carb / Keto' %}selected{% endif %}>🥩 Low Carb / Keto</option>
+                <option value="High Carb" {% if v=='High Carb' %}selected{% endif %}>🍞 High Carb</option>
+                <option value="Paleo" {% if v=='Paleo' %}selected{% endif %}>🍱 Paleo</option>
+                <option value="Gluten-Free" {% if v=='Gluten-Free' %}selected{% endif %}>🥛 Gluten-Free</option>
+                <option value="No preference" {% if v=='No preference' %}selected{% endif %}>🚫 No preference</option>
+            </select><br>
+        {% elif k == 'fitness_goals' %}
+            Fitness Goals (Choose one or more):<br>
+            <select name="fitness_goals" multiple size="5" required>
+                <option value="Fat Loss" {% if 'Fat Loss' in v %}selected{% endif %}>🔥 Fat Loss</option>
+                <option value="Muscle Gain" {% if 'Muscle Gain' in v %}selected{% endif %}>💪 Muscle Gain</option>
+                <option value="Weight Maintenance" {% if 'Weight Maintenance' in v %}selected{% endif %}>⚖️ Weight Maintenance</option>
+                <option value="Flexibility & Mobility" {% if 'Flexibility & Mobility' in v %}selected{% endif %}>🧘 Flexibility & Mobility</option>
+                <option value="Cardiovascular Health" {% if 'Cardiovascular Health' in v %}selected{% endif %}>❤️ Cardiovascular Health</option>
+                <option value="Mental Well-being" {% if 'Mental Well-being' in v %}selected{% endif %}>🧠 Mental Well-being</option>
+                <option value="Strength & Performance" {% if 'Strength & Performance' in v %}selected{% endif %}>🏋️ Strength & Performance</option>
+                <option value="Endurance / Stamina" {% if 'Endurance / Stamina' in v %}selected{% endif %}>🏃 Endurance / Stamina</option>
+                <option value="Medical Rehabilitation" {% if 'Medical Rehabilitation' in v %}selected{% endif %}>🩺 Medical Rehabilitation</option>
+            </select><br>
+        {% else %}
+            {{ k }}: <input name="{{ k }}" value="{{ v }}"><br>
+        {% endif %}
+    {% endfor %}
+        <button type="submit">Save</button>
+    </form>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

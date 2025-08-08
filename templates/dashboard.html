@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>Dashboard</title></head>
+<body>
+    <h2>Welcome, {{ email }}</h2>
+    <h3>Your Profile</h3>
+    <ul>
+    {% for k, v in profile.items() %}
+        <li><b>{{ k }}:</b>
+            {% if k == 'fitness_goals' and v %}
+                {{ v|join(', ') }}
+            {% else %}
+                {{ v }}
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+    <a href="/edit">Edit Profile</a> | <a href="/logout">Logout</a>
+</body>
+</html>
