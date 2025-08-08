@@ -1,3 +1,4 @@
+from tracking import log_activity, get_user_logs
 from plan_generator import generate_routine
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from auth import register_user, login_user
@@ -50,7 +51,7 @@ def login():
             flash(user)
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'email' not in session:
         return redirect(url_for('login'))
@@ -59,13 +60,29 @@ def dashboard():
     routine = None
     period = request.args.get('period', 'weekly')
     location = request.args.get('location', 'home')
-    # Use first fitness goal if multiple
     goal = profile.get('fitness_goals', ['Weight Maintenance'])
     if isinstance(goal, list):
         goal = goal[0] if goal else 'Weight Maintenance'
     if request.args.get('generate'):
         routine = generate_routine(profile, goal, location, period)
-    return render_template('dashboard.html', email=email, profile=profile, routine=routine)
+
+    # Handle activity/weight log POST
+    if request.method == 'POST':
+        meals = request.form.get('meals')
+        workout = request.form.get('workout')
+        water = request.form.get('water')
+        sleep = request.form.get('sleep')
+        weight = request.form.get('weight')
+        measurements = request.form.get('measurements')
+        log_activity(email, meals=meals, workout=workout, water=water, sleep=sleep, weight=weight, measurements=measurements)
+        flash('Log saved!')
+        return redirect(url_for('dashboard'))
+
+    logs = get_user_logs(email)
+    # Prepare progress summary (last 7 days)
+    sorted_dates = sorted(logs.keys(), reverse=True)
+    recent_logs = [dict(date=d, **logs[d]) for d in sorted_dates[:7]]
+    return render_template('dashboard.html', email=email, profile=profile, routine=routine, logs=recent_logs)
 @app.route('/routine', methods=['GET'])
 def routine():
     if 'email' not in session:

@@ -17,6 +17,34 @@
     </ul>
     <a href="/edit">Edit Profile</a> | <a href="/logout">Logout</a>
     <hr>
+    <h3>Log Daily Activities</h3>
+    <form method="post">
+        Meals: <input name="meals" placeholder="What did you eat?"> <br>
+        Workout: <input name="workout" placeholder="Workout done"> <br>
+        Water Intake (ml): <input name="water" type="number" min="0"> <br>
+        Sleep (hours): <input name="sleep" type="number" min="0" max="24"> <br>
+        Weight (kg): <input name="weight" type="number" step="0.1"> <br>
+        Measurements: <input name="measurements" placeholder="e.g. Waist: 80cm"> <br>
+        <button type="submit">Save Log</button>
+    </form>
+
+    <h3>Recent Progress (Last 7 Days)</h3>
+    <table border="1">
+        <tr><th>Date</th><th>Meals</th><th>Workout</th><th>Water (ml)</th><th>Sleep (h)</th><th>Weight (kg)</th><th>Measurements</th></tr>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.date }}</td>
+            <td>{{ log.meals or '' }}</td>
+            <td>{{ log.workout or '' }}</td>
+            <td>{{ log.water or '' }}</td>
+            <td>{{ log.sleep or '' }}</td>
+            <td>{{ log.weight or '' }}</td>
+            <td>{{ log.measurements or '' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <hr>
     <h3>Generate Personalized Routine</h3>
     <form method="get" action="/dashboard">
         <label>Period:</label>
