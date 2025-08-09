@@ -32,5 +32,41 @@
         "Fat Loss"
       ]
     }
+  },
+  "a@gmail.com": {
+    "email": "a@gmail.com",
+    "password": "a",
+    "mobile": "123",
+    "social_id": null,
+    "profile": {
+      "age": "25",
+      "gender": "F",
+      "height": "158",
+      "weight": "",
+      "goal_weight": "",
+      "activity": "Sedentary",
+      "diet": "High Protein",
+      "fitness_goals": [
+        "Fat Loss"
+      ]
+    }
+  },
+  "dev1@gmail.com": {
+    "email": "dev1@gmail.com",
+    "password": "scrypt:32768:8:1$AfoTgFAy0nTNhaEi$2a919205ee9c23d7ea859aa6c9e7791f08cfddff96d6167907918a7566f1cca437706b7bc3f6b20634712ca50215f8bf5fc0b85b92d7c052b27ef47613878b12",
+    "mobile": "123",
+    "social_id": null,
+    "profile": {
+      "age": "25",
+      "gender": "F",
+      "height": "158",
+      "weight": "62",
+      "goal_weight": "60",
+      "activity": "Lightly Active",
+      "diet": "Vegetarian",
+      "fitness_goals": [
+        "Fat Loss"
+      ]
+    }
   }
 }
