@@ -1,20 +1,20 @@
 
 import random
-import json
-import os
+
+from db import get_db
 
 def load_meals():
+    db = get_db()
     try:
-        with open('meals.json', 'r') as f:
-            meals = json.load(f)
-            if not isinstance(meals, list):
-                print('meals.json is not a list!')
-                return []
-            print(f"Loaded {len(meals)} meals from meals.json")
-            return meals
+        cur = db.execute('SELECT * FROM meals')
+        meals = [dict(zip([col[0] for col in cur.description], row)) for row in cur.fetchall()]
+        print(f"Loaded {len(meals)} meals from DB")
+        return meals
     except Exception as e:
-        print(f"Error loading meals.json: {e}")
+        print(f"Error loading meals from DB: {e}")
         return []
+    finally:
+        db.close()
 
 def generate_meal_plan(profile, goal):
     meals = load_meals()
@@ -37,17 +37,17 @@ def generate_meal_plan(profile, goal):
     return plan
 
 def load_exercises():
+    db = get_db()
     try:
-        with open('exercises.json', 'r') as f:
-            exercises = json.load(f)
-            if not isinstance(exercises, list):
-                print('exercises.json is not a list!')
-                return []
-            print(f"Loaded {len(exercises)} exercises from exercises.json")
-            return exercises
+        cur = db.execute('SELECT * FROM exercises')
+        exercises = [dict(zip([col[0] for col in cur.description], row)) for row in cur.fetchall()]
+        print(f"Loaded {len(exercises)} exercises from DB")
+        return exercises
     except Exception as e:
-        print(f"Error loading exercises.json: {e}")
+        print(f"Error loading exercises from DB: {e}")
         return []
+    finally:
+        db.close()
 
 def generate_workout_schedule(profile, goal, location='home'):
     exercises = load_exercises()

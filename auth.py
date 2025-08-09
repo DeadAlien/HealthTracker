@@ -1,6 +1,6 @@
 import re
 
-from models import load_users, save_users, User
+from models import load_users, save_users, add_user, get_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def register_user(email, password, mobile=None, social_id=None, **profile):
@@ -49,23 +49,33 @@ def register_user(email, password, mobile=None, social_id=None, **profile):
         for g in fg:
             if g not in allowed_goals:
                 return False, 'Invalid fitness goal.'
-    users = load_users()
-    if email in users:
-        return False, 'Email already registered.'
+        if get_user(email):
+            return False, 'Email already registered.'
+        users = load_users()
     # Check mobile uniqueness
     if mobile:
         for u in users.values():
             if u.get('mobile') == mobile:
                 return False, 'Mobile number already registered.'
     hashed_password = generate_password_hash(password)
-    user = User(email, hashed_password, mobile, social_id, **profile)
-    users[email] = user.to_dict()
-    save_users(users)
+    user = {
+        'email': email,
+        'password': hashed_password,
+        'mobile': mobile,
+        'age': profile.get('age'),
+        'gender': profile.get('gender'),
+        'height': profile.get('height'),
+        'weight': profile.get('weight'),
+        'goal_weight': profile.get('goal_weight'),
+        'activity': profile.get('activity'),
+        'diet': profile.get('diet'),
+        'fitness_goals': profile.get('fitness_goals', [])
+    }
+    add_user(user)
     return True, 'Registration successful.'
 
 def login_user(email, password):
-    users = load_users()
-    user = users.get(email)
+    user = get_user(email)
     if not user:
         return False, 'User not found.'
     if not check_password_hash(user['password'], password):
