@@ -68,5 +68,23 @@
         "Fat Loss"
       ]
     }
+  },
+  "dev2@gmail.com": {
+    "email": "dev2@gmail.com",
+    "password": "scrypt:32768:8:1$ukMOx96SzkwwJcZV$63ab21cc8fdb8c24d3e4b4b0390889c96a19c08c3f4a903b6a5a3914fb2e1af9cd0267051e36058953160bde145f29ba832b50ff57614f667dd49470409ae6c4",
+    "mobile": "123",
+    "social_id": null,
+    "profile": {
+      "age": "1",
+      "gender": "M",
+      "height": "1",
+      "weight": "62",
+      "goal_weight": "55",
+      "activity": "Sedentary",
+      "diet": "High Protein",
+      "fitness_goals": [
+        "Fat Loss"
+      ]
+    }
   }
 }
