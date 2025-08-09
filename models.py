@@ -1,47 +1,57 @@
-import json
-import os
 
-USERS_FILE = 'users.json'
+from db import get_db, dict_from_row
 
 def load_users():
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as f:
-            return json.load(f)
-    return {}
+    db = get_db()
+    cur = db.execute('SELECT * FROM users')
+    users = {}
+    for row in cur.fetchall():
+        user = dict_from_row(row)
+        email = user['email']
+        users[email] = user
+    db.close()
+    return users
 
 def save_users(users):
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users, f, indent=2)
+    # Not needed with DB, but kept for compatibility
+    pass
 
-class User:
-    def __init__(self, email, password, mobile=None, social_id=None, **profile):
-        self.email = email
-        self.password = password
-        self.mobile = mobile
-        self.social_id = social_id
-        # Ensure fitness_goals is always a list
-        if 'fitness_goals' in profile and not isinstance(profile['fitness_goals'], list):
-            if isinstance(profile['fitness_goals'], str):
-                profile['fitness_goals'] = [profile['fitness_goals']]
-            else:
-                profile['fitness_goals'] = list(profile['fitness_goals'])
-        self.profile = profile
-
-    def to_dict(self):
-        return {
-            'email': self.email,
-            'password': self.password,
-            'mobile': self.mobile,
-            'social_id': self.social_id,
-            'profile': self.profile
-        }
-
-    @staticmethod
-    def from_dict(data):
-        return User(
-            data['email'],
-            data['password'],
-            data.get('mobile'),
-            data.get('social_id'),
-            **data.get('profile', {})
+def add_user(user):
+    db = get_db()
+    db.execute('''INSERT INTO users (email, password, mobile, age, gender, height, weight, goal_weight, activity, diet, fitness_goals)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+        (
+            user['email'], user['password'], user.get('mobile'), user.get('age'), user.get('gender'),
+            user.get('height'), user.get('weight'), user.get('goal_weight'), user.get('activity'),
+            user.get('diet'), ','.join(user.get('fitness_goals', []))
         )
+    )
+    db.commit()
+    db.close()
+
+def get_user(email):
+    db = get_db()
+    cur = db.execute('SELECT * FROM users WHERE email = ?', (email,))
+    user = dict_from_row(cur.fetchone())
+    db.close()
+    return user
+
+def update_user(email, updates):
+    db = get_db()
+    fields = []
+    values = []
+    for k, v in updates.items():
+        fields.append(f"{k}=?")
+        values.append(v)
+    values.append(email)
+    db.execute(f'UPDATE users SET {", ".join(fields)} WHERE email=?', values)
+    db.commit()
+    db.close()
+
+def delete_user(email):
+    db = get_db()
+    db.execute('DELETE FROM users WHERE email=?', (email,))
+    db.commit()
+    db.close()
+
+# User class is not needed for DB-based CRUD, but can be re-added if needed for business logic

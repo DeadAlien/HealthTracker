@@ -1,3 +1,4 @@
+from flask import jsonify
 from guidance import get_fitness_advice, get_goal_feedback
 from tracking import log_activity, get_user_logs
 from plan_generator import generate_routine
@@ -6,8 +7,25 @@ from auth import register_user, login_user
 from profile import get_user_profile, update_user_profile
 import os
 
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+
+# AJAX endpoint for frontend uniqueness check
+@app.route('/check-unique')
+def check_unique():
+    from models import load_users
+    email = request.args.get('email')
+    mobile = request.args.get('mobile')
+    users = load_users()
+    email_unique = email not in users
+    mobile_unique = True
+    if mobile:
+        for u in users.values():
+            if u.get('mobile') == mobile:
+                mobile_unique = False
+                break
+    return jsonify({'email_unique': email_unique, 'mobile_unique': mobile_unique})
 
 @app.route('/')
 def home():
