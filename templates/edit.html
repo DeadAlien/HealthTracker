@@ -3,11 +3,11 @@
 <head><title>Edit Profile</title></head>
 <body>
     <h2>Edit Profile</h2>
-    <form method="post">
+    <form method="post" id="editForm" onsubmit="return validateEditForm()">
     {% for k, v in profile.items() %}
         {% if k == 'activity' %}
             Activity Level:
-            <select name="activity" required>
+            <select name="activity" id="activity" required>
                 <option value="Sedentary" {% if v=='Sedentary' %}selected{% endif %}>🛋️ Sedentary (Little or no exercise)</option>
                 <option value="Lightly Active" {% if v=='Lightly Active' %}selected{% endif %}>🚶 Lightly Active (Light exercise 1–3 days/week)</option>
                 <option value="Moderately Active" {% if v=='Moderately Active' %}selected{% endif %}>🏃 Moderately Active (Moderate exercise 3–5 days/week)</option>
@@ -16,7 +16,7 @@
             </select><br>
         {% elif k == 'diet' %}
             Diet Preference:
-            <select name="diet" required>
+            <select name="diet" id="diet" required>
                 <option value="High Protein" {% if v=='High Protein' %}selected{% endif %}>🍗 High Protein</option>
                 <option value="Vegetarian" {% if v=='Vegetarian' %}selected{% endif %}>🥗 Vegetarian</option>
                 <option value="Vegan" {% if v=='Vegan' %}selected{% endif %}>🥑 Vegan</option>
@@ -29,7 +29,7 @@
             </select><br>
         {% elif k == 'fitness_goals' %}
             Fitness Goals (Choose one or more):<br>
-            <select name="fitness_goals" multiple size="5" required>
+            <select name="fitness_goals" id="fitness_goals" multiple size="5" required>
                 <option value="Fat Loss" {% if 'Fat Loss' in v %}selected{% endif %}>🔥 Fat Loss</option>
                 <option value="Muscle Gain" {% if 'Muscle Gain' in v %}selected{% endif %}>💪 Muscle Gain</option>
                 <option value="Weight Maintenance" {% if 'Weight Maintenance' in v %}selected{% endif %}>⚖️ Weight Maintenance</option>
@@ -41,11 +41,33 @@
                 <option value="Medical Rehabilitation" {% if 'Medical Rehabilitation' in v %}selected{% endif %}>🩺 Medical Rehabilitation</option>
             </select><br>
         {% else %}
-            {{ k }}: <input name="{{ k }}" value="{{ v }}"><br>
+            {{ k }}: <input name="{{ k }}" id="{{ k }}" value="{{ v }}" {% if k in ['age','height','weight','goal_weight'] %}type="number" min="1" required{% endif %}><br>
         {% endif %}
     {% endfor %}
+        <span id="editError" style="color:red;"></span><br>
         <button type="submit">Save</button>
     </form>
+    <script>
+    function validateEditForm() {
+        let age = document.getElementById('age') ? document.getElementById('age').value : 1;
+        let height = document.getElementById('height') ? document.getElementById('height').value : 1;
+        let weight = document.getElementById('weight') ? document.getElementById('weight').value : 1;
+        let goal_weight = document.getElementById('goal_weight') ? document.getElementById('goal_weight').value : 1;
+        let activity = document.getElementById('activity') ? document.getElementById('activity').value : '';
+        let diet = document.getElementById('diet') ? document.getElementById('diet').value : '';
+        let fitness_goals = document.getElementById('fitness_goals') ? document.getElementById('fitness_goals').selectedOptions : [];
+        let error = '';
+        if (age <= 0 || height <= 0 || weight <= 0 || goal_weight <= 0) error = 'Numbers must be positive.';
+        else if (!activity) error = 'Select activity.';
+        else if (!diet) error = 'Select diet.';
+        else if (fitness_goals.length === 0) error = 'Select at least one fitness goal.';
+        if (error) {
+            document.getElementById('editError').innerText = error;
+            return false;
+        }
+        return true;
+    }
+    </script>
     <a href="/dashboard">Back to Dashboard</a>
 </body>
 </html>
