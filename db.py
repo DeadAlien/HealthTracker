@@ -33,25 +33,51 @@ def init_db():
         CREATE TABLE IF NOT EXISTS logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT,
-            date TEXT,
+            log_date TEXT,
             meals TEXT,
             workout TEXT,
             water REAL,
-            sleep REAL,
+            sleep_hours REAL,
             weight REAL,
-            measurements TEXT,
+            notes TEXT,
             FOREIGN KEY(email) REFERENCES users(email)
         );
         CREATE TABLE IF NOT EXISTS meals (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
+            portion_size TEXT,
+            calories INTEGER,
+            protein REAL,
+            carbs REAL,
+            fats REAL,
             diet TEXT,
-            calories INTEGER
+            meal_type TEXT
         );
-        CREATE TABLE IF NOT EXISTS exercises (
+        CREATE TABLE IF NOT EXISTS snacks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
-            location TEXT
+            calories INTEGER,
+            protein REAL,
+            carbs REAL,
+            fats REAL
+        );
+        CREATE TABLE IF NOT EXISTS supplements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            benefit TEXT
+        );
+        CREATE TABLE IF NOT EXISTS hydration_goals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT,
+            daily_goal REAL,
+            FOREIGN KEY(email) REFERENCES users(email)
+        );
+        CREATE TABLE IF NOT EXISTS advice_tips (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT,
+            tip TEXT,
+            log_date TEXT,
+            FOREIGN KEY(email) REFERENCES users(email)
         );
         ''')
         db.commit()
