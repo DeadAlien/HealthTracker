@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head><title>Dashboard</title></head>
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container { width: 600px; margin: 20px auto; }
+        .calendar { display: flex; flex-wrap: wrap; gap: 10px; }
+        .calendar-day { border: 1px solid #ccc; padding: 10px; width: 120px; background: #f9f9f9; }
+    </style>
+</head>
 <body>
     <h2>Welcome, {{ email }}</h2>
     <h3>Your Profile</h3>
@@ -16,36 +24,76 @@
     {% endfor %}
     </ul>
     <a href="/edit">Edit Profile</a> | <a href="/logout">Logout</a>
-    <hr>
-    <h3>Guidance & Advice</h3>
-    <ul>
-    {% for tip in advice %}
-        <li>{{ tip }}</li>
-    {% endfor %}
-    </ul>
-    <b>Goal Feedback:</b> {{ goal_feedback }}
-    <hr>
+    <head><title>Dashboard</title></head>
     <h3>Log Daily Activities</h3>
     <form method="post">
-        Meals: <input name="meals" placeholder="What did you eat?"> <br>
-        Workout: <input name="workout" placeholder="Workout done"> <br>
-        Water Intake (ml): <input name="water" type="number" min="0"> <br>
-        Sleep (hours): <input name="sleep" type="number" min="0" max="24"> <br>
+        Day: 
+        <select name="day">
+            <option value="Sun">Sun</option>
+            <option value="Mon">Mon</option>
+            <option value="Tue">Tue</option>
+            <option value="Wed">Wed</option>
+            <option value="Thu">Thu</option>
+            <option value="Fri">Fri</option>
+            <option value="Sat">Sat</option>
+        </select>
+        <br>
+        Date: <input name="date" type="date" value="{{ current_date }}"> <br>
+    Breakfast: <input name="breakfast" placeholder="Breakfast items"> <br>
+    Lunch: <input name="lunch" placeholder="Lunch items"> <br>
+    Snacks: <input name="snacks" placeholder="Snacks items"> <br>
+    Dinner: <input name="dinner" placeholder="Dinner items"> <br>
+    Workout: <input name="workout" placeholder="Workout done"> <br>
+    Water Intake (ml): <input name="water" type="number" min="0"> <br>
+    Sleep (hours): <input name="sleep" type="number" min="0" max="24"> <br>
         Weight (kg): <input name="weight" type="number" step="0.1"> <br>
-        Measurements: <input name="measurements" placeholder="e.g. Waist: 80cm"> <br>
+
+        <fieldset style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+            <legend>Body Measurements</legend>
+            Waist (cm): <input name="waist" type="number" step="0.1" placeholder="Waist">
+            Chest (cm): <input name="chest" type="number" step="0.1" placeholder="Chest">
+            Hips (cm): <input name="hips" type="number" step="0.1" placeholder="Hips">
+            Arms (cm): <input name="arms" type="number" step="0.1" placeholder="Arms">
+            Thighs (cm): <input name="thighs" type="number" step="0.1" placeholder="Thighs">
+            Neck (cm): <input name="neck" type="number" step="0.1" placeholder="Neck">
+            Shoulders (cm): <input name="shoulders" type="number" step="0.1" placeholder="Shoulders">
+        </fieldset>
+
+        <fieldset style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+            <legend>Quick Add Measurement</legend>
+            <select name="measurement_type">
+                <option value="">Select Measurement</option>
+                <option value="Waist">Waist</option>
+                <option value="Chest">Chest</option>
+                <option value="Hips">Hips</option>
+                <option value="Arms">Arms</option>
+                <option value="Thighs">Thighs</option>
+                <option value="Neck">Neck</option>
+                <option value="Shoulders">Shoulders</option>
+                <option value="Other">Other</option>
+            </select>
+            <input name="measurement_value" type="number" step="0.1" placeholder="Value">
+            <input name="measurement_unit" type="text" value="cm" style="width:40px;" placeholder="Unit">
+            <input name="measurement_custom" type="text" placeholder="Custom Name (if Other)">
+        </fieldset>
+
         <button type="submit">Save Log</button>
     </form>
 
     <h3>Recent Progress (Last 7 Days)</h3>
+
     <table border="1">
-        <tr><th>Date</th><th>Meals</th><th>Workout</th><th>Water (ml)</th><th>Sleep (h)</th><th>Weight (kg)</th><th>Measurements</th></tr>
+        <tr><th>Date</th><th>Breakfast</th><th>Lunch</th><th>Snacks</th><th>Dinner</th><th>Workout</th><th>Water (ml)</th><th>Sleep (h)</th><th>Weight (kg)</th><th>Measurements</th></tr>
         {% for log in logs %}
         <tr>
             <td>{{ log.date }}</td>
-            <td>{{ log.meals or '' }}</td>
+            <td>{{ log.breakfast or '' }}</td>
+            <td>{{ log.lunch or '' }}</td>
+            <td>{{ log.snacks or '' }}</td>
+            <td>{{ log.dinner or '' }}</td>
             <td>{{ log.workout or '' }}</td>
             <td>{{ log.water or '' }}</td>
-            <td>{{ log.sleep or '' }}</td>
+            <td>{{ log.sleep or log.sleep_hours or '' }}</td>
             <td>{{ log.weight or '' }}</td>
             <td>{{ log.measurements or '' }}</td>
         </tr>

@@ -87,19 +87,25 @@ def dashboard():
 
     # Handle activity/weight log POST
     if request.method == 'POST':
-        meals = request.form.get('meals')
+        breakfast = request.form.get('breakfast')
+        lunch = request.form.get('lunch')
+        snacks = request.form.get('snacks')
+        dinner = request.form.get('dinner')
         workout = request.form.get('workout')
         water = request.form.get('water')
         sleep = request.form.get('sleep')
         weight = request.form.get('weight')
         measurements = request.form.get('measurements')
-        log_activity(email, meals=meals, workout=workout, water=water, sleep=sleep, weight=weight, measurements=measurements)
+        log_date = request.form.get('date')
+        log_day = request.form.get('day')
+        log_activity(email, breakfast=breakfast, lunch=lunch, snacks=snacks, dinner=dinner, workout=workout, water=water, sleep=sleep, weight=weight, measurements=measurements, log_date=log_date, log_day=log_day)
         flash('Log saved!')
         return redirect(url_for('dashboard'))
 
     logs = get_user_logs(email)
     # Prepare progress summary (last 7 days)
-    sorted_dates = sorted(logs.keys(), reverse=True)
+    valid_dates = [d for d in logs.keys() if d is not None]
+    sorted_dates = sorted(valid_dates, reverse=True)
     recent_logs = []
     for d in sorted_dates[:7]:
         log = dict(logs[d])
