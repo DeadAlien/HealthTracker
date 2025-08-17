@@ -1,3 +1,4 @@
+
 from flask import jsonify
 from guidance import get_fitness_advice, get_goal_feedback
 from tracking import log_activity, get_user_logs
@@ -6,7 +7,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from auth import register_user, login_user
 from profile import get_user_profile, update_user_profile
 import os
-
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -26,6 +26,54 @@ def check_unique():
                 mobile_unique = False
                 break
     return jsonify({'email_unique': email_unique, 'mobile_unique': mobile_unique})
+
+
+# Add API endpoints for Android
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    # Accept both form and JSON data
+    email = request.form.get('email')
+    password = request.form.get('password')
+    if not email or not password:
+        try:
+            data = request.get_json(force=True)
+            email = data.get('email')
+            password = data.get('password')
+        except Exception:
+            email = None
+            password = None
+    print(f"API LOGIN: email={email}, password={'***' if password else None}")
+    success, user_or_msg = login_user(email, password)
+    if success:
+        msg = 'Login successful!'
+        user = user_or_msg
+    else:
+        msg = user_or_msg if isinstance(user_or_msg, str) and user_or_msg else 'Login failed.'
+        user = None
+    return jsonify({'success': success, 'user': user, 'message': msg})
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.form.to_dict()
+    # fitness_goals may be a list, handle it
+    fitness_goals = request.form.getlist('fitness_goals')
+    if fitness_goals:
+        data['fitness_goals'] = fitness_goals
+    success, msg = register_user(**data)
+    return jsonify({'success': success, 'message': msg})
+
+# New: API endpoint for dashboard/profile data
+@app.route('/api/dashboard', methods=['GET'])
+def api_dashboard():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({'success': False, 'message': 'Email required', 'profile': None})
+    profile = get_user_profile(email)
+    if not profile:
+        return jsonify({'success': False, 'message': 'User not found', 'profile': None})
+    return jsonify({'success': True, 'profile': profile})
+
+# ...existing code...
 
 @app.route('/')
 def home():
