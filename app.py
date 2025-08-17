@@ -100,7 +100,11 @@ def dashboard():
     logs = get_user_logs(email)
     # Prepare progress summary (last 7 days)
     sorted_dates = sorted(logs.keys(), reverse=True)
-    recent_logs = [dict(date=d, **logs[d]) for d in sorted_dates[:7]]
+    recent_logs = []
+    for d in sorted_dates[:7]:
+        log = dict(logs[d])
+        log['date'] = d  # overwrite or set date
+        recent_logs.append(log)
     advice = get_fitness_advice(profile)
     goal_feedback = get_goal_feedback(profile)
     return render_template('dashboard.html', email=email, profile=profile, routine=routine, logs=recent_logs, advice=advice, goal_feedback=goal_feedback)

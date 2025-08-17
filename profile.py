@@ -1,11 +1,15 @@
 from models import load_users, save_users
 
 def get_user_profile(email):
-    users = load_users()
-    user = users.get(email)
+    from models import get_user
+    user = get_user(email)
     if not user:
         return None
-    return user.get('profile', {})
+    # Remove password from profile dict
+    profile = dict(user)
+    profile.pop('password', None)
+    profile.pop('email', None)
+    return profile
 
 def update_user_profile(email, **profile):
     # --- Input Validation (same as registration) ---
@@ -42,11 +46,16 @@ def update_user_profile(email, **profile):
         for g in fg:
             if g not in allowed_goals:
                 return False
-    users = load_users()
-    user = users.get(email)
+    from models import update_user, get_user
+    user = get_user(email)
     if not user:
         return False
-    user['profile'].update(profile)
-    users[email] = user
-    save_users(users)
+    # Prepare updates for DB
+    updates = {}
+    for k, v in profile.items():
+        if k in ['fitness_goals', 'allergies', 'dislikes', 'foods_to_avoid', 'preferred_workout_days'] and isinstance(v, str):
+            updates[k] = [x.strip() for x in v.split(',') if x.strip()]
+        else:
+            updates[k] = v
+    update_user(email, updates)
     return True

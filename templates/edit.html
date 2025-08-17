@@ -40,6 +40,122 @@
                 <option value="Endurance / Stamina" {% if 'Endurance / Stamina' in v %}selected{% endif %}>🏃 Endurance / Stamina</option>
                 <option value="Medical Rehabilitation" {% if 'Medical Rehabilitation' in v %}selected{% endif %}>🩺 Medical Rehabilitation</option>
             </select><br>
+        {% elif k == 'allergies' %}
+            Allergies:<br>
+            {% set v = v if v is not none else [] %}
+            <select name="allergies" id="allergies" multiple size="7">
+                <option value="None" {% if 'None' in v %}selected{% endif %}>None</option>
+                <option value="Peanuts" {% if 'Peanuts' in v %}selected{% endif %}>Peanuts</option>
+                <option value="Tree Nuts" {% if 'Tree Nuts' in v %}selected{% endif %}>Tree Nuts (almonds, cashews, walnuts, etc.)</option>
+                <option value="Dairy / Lactose" {% if 'Dairy / Lactose' in v %}selected{% endif %}>Dairy / Lactose</option>
+                <option value="Eggs" {% if 'Eggs' in v %}selected{% endif %}>Eggs</option>
+                <option value="Wheat / Gluten" {% if 'Wheat / Gluten' in v %}selected{% endif %}>Wheat / Gluten</option>
+                <option value="Soy" {% if 'Soy' in v %}selected{% endif %}>Soy</option>
+                <option value="Fish" {% if 'Fish' in v %}selected{% endif %}>Fish</option>
+                <option value="Shellfish" {% if 'Shellfish' in v %}selected{% endif %}>Shellfish</option>
+                <option value="Sesame" {% if 'Sesame' in v %}selected{% endif %}>Sesame</option>
+                <option value="Other" {% if 'Other' in v %}selected{% endif %}>Other</option>
+            </select><br>
+        {% elif k == 'dislikes' %}
+            Dislikes:<br>
+            {% set v = v if v is not none else [] %}
+            <select name="dislikes" id="dislikes" multiple size="7">
+                <option value="None" {% if 'None' in v %}selected{% endif %}>None</option>
+                <option value="Spicy Food" {% if 'Spicy Food' in v %}selected{% endif %}>Spicy Food</option>
+                <option value="Bitter Food" {% if 'Bitter Food' in v %}selected{% endif %}>Bitter Food</option>
+                <option value="Sweet/Desserts" {% if 'Sweet/Desserts' in v %}selected{% endif %}>Sweet/Desserts</option>
+                <option value="Sour Food" {% if 'Sour Food' in v %}selected{% endif %}>Sour Food</option>
+                <option value="High-Fat Food" {% if 'High-Fat Food' in v %}selected{% endif %}>High-Fat Food</option>
+                <option value="Raw Vegetables" {% if 'Raw Vegetables' in v %}selected{% endif %}>Raw Vegetables</option>
+                <option value="Cooked Vegetables" {% if 'Cooked Vegetables' in v %}selected{% endif %}>Cooked Vegetables</option>
+                <option value="Legumes / Beans" {% if 'Legumes / Beans' in v %}selected{% endif %}>Legumes / Beans</option>
+                <option value="Seafood" {% if 'Seafood' in v %}selected{% endif %}>Seafood</option>
+                <option value="Meat" {% if 'Meat' in v %}selected{% endif %}>Meat (beef/pork/chicken)</option>
+                <option value="Other" {% if 'Other' in v %}selected{% endif %}>Other</option>
+            </select><br>
+        {% elif k == 'foods_to_avoid' %}
+            Foods to Avoid:<br>
+            {% set v = v if v is not none else [] %}
+            <select name="foods_to_avoid" id="foods_to_avoid" multiple size="7">
+                <option value="None" {% if 'None' in v %}selected{% endif %}>None</option>
+                <option value="Fast Food / Junk Food" {% if 'Fast Food / Junk Food' in v %}selected{% endif %}>Fast Food / Junk Food</option>
+                <option value="Fried Food" {% if 'Fried Food' in v %}selected{% endif %}>Fried Food</option>
+                <option value="Sugary Drinks" {% if 'Sugary Drinks' in v %}selected{% endif %}>Sugary Drinks</option>
+                <option value="Alcohol" {% if 'Alcohol' in v %}selected{% endif %}>Alcohol</option>
+                <option value="Red Meat" {% if 'Red Meat' in v %}selected{% endif %}>Red Meat</option>
+                <option value="Processed Meats" {% if 'Processed Meats' in v %}selected{% endif %}>Processed Meats (sausages, bacon, etc.)</option>
+                <option value="High Salt Foods" {% if 'High Salt Foods' in v %}selected{% endif %}>High Salt Foods</option>
+                <option value="High Sugar Foods" {% if 'High Sugar Foods' in v %}selected{% endif %}>High Sugar Foods</option>
+                <option value="Caffeine" {% if 'Caffeine' in v %}selected{% endif %}>Caffeine</option>
+                <option value="Other" {% if 'Other' in v %}selected{% endif %}>Other</option>
+            </select><br>
+        {% elif k == 'dietary_restrictions' %}
+            Dietary Restrictions:<br>
+            {% set v = v if v is not none else [] %}
+            <select name="dietary_restrictions" id="dietary_restrictions" multiple size="7">
+                <option value="None" {% if 'None' in v %}selected{% endif %}>None</option>
+                <option value="Vegetarian" {% if 'Vegetarian' in v %}selected{% endif %}>Vegetarian</option>
+                <option value="Vegan" {% if 'Vegan' in v %}selected{% endif %}>Vegan</option>
+                <option value="Pescatarian" {% if 'Pescatarian' in v %}selected{% endif %}>Pescatarian (Fish allowed)</option>
+                <option value="Keto" {% if 'Keto' in v %}selected{% endif %}>Keto (Low Carb, High Fat)</option>
+                <option value="Paleo" {% if 'Paleo' in v %}selected{% endif %}>Paleo</option>
+                <option value="Gluten-Free" {% if 'Gluten-Free' in v %}selected{% endif %}>Gluten-Free</option>
+                <option value="Dairy-Free" {% if 'Dairy-Free' in v %}selected{% endif %}>Dairy-Free</option>
+                <option value="Halal" {% if 'Halal' in v %}selected{% endif %}>Halal</option>
+                <option value="Kosher" {% if 'Kosher' in v %}selected{% endif %}>Kosher</option>
+                <option value="Other" {% if 'Other' in v %}selected{% endif %}>Other</option>
+            </select><br>
+        {% elif k == 'medical_conditions' %}
+            Medical Conditions:<br>
+            {% set v = v if v is not none else [] %}
+            <select name="medical_conditions" id="medical_conditions" multiple size="7">
+                <option value="None" {% if 'None' in v %}selected{% endif %}>None</option>
+                <option value="Diabetes" {% if 'Diabetes' in v %}selected{% endif %}>Diabetes (Type 1, Type 2)</option>
+                <option value="Hypertension" {% if 'Hypertension' in v %}selected{% endif %}>Hypertension (High BP)</option>
+                <option value="High Cholesterol" {% if 'High Cholesterol' in v %}selected{% endif %}>High Cholesterol</option>
+                <option value="Heart Disease" {% if 'Heart Disease' in v %}selected{% endif %}>Heart Disease</option>
+                <option value="Asthma" {% if 'Asthma' in v %}selected{% endif %}>Asthma</option>
+                <option value="Arthritis" {% if 'Arthritis' in v %}selected{% endif %}>Arthritis</option>
+                <option value="Thyroid Disorders" {% if 'Thyroid Disorders' in v %}selected{% endif %}>Thyroid Disorders</option>
+                <option value="Obesity" {% if 'Obesity' in v %}selected{% endif %}>Obesity</option>
+                <option value="PCOS / Hormonal Disorders" {% if 'PCOS / Hormonal Disorders' in v %}selected{% endif %}>PCOS / Hormonal Disorders</option>
+                <option value="Digestive Issues" {% if 'Digestive Issues' in v %}selected{% endif %}>Digestive Issues (IBS, Crohn’s, etc.)</option>
+                <option value="Other" {% if 'Other' in v %}selected{% endif %}>Other</option>
+            </select><br>
+        {% elif k == 'medications' %}
+            Medications (optional):<br>
+            {% set v = v if v is not none else [] %}
+            <select name="medications" id="medications" multiple size="7">
+                <option value="None" {% if 'None' in v %}selected{% endif %}>None</option>
+                <option value="Blood Pressure Medication" {% if 'Blood Pressure Medication' in v %}selected{% endif %}>Blood Pressure Medication</option>
+                <option value="Cholesterol Medication" {% if 'Cholesterol Medication' in v %}selected{% endif %}>Cholesterol Medication</option>
+                <option value="Diabetes Medication" {% if 'Diabetes Medication' in v %}selected{% endif %}>Diabetes Medication (Insulin, Metformin, etc.)</option>
+                <option value="Pain Relief / Anti-inflammatory" {% if 'Pain Relief / Anti-inflammatory' in v %}selected{% endif %}>Pain Relief / Anti-inflammatory</option>
+                <option value="Hormonal / Thyroid Medication" {% if 'Hormonal / Thyroid Medication' in v %}selected{% endif %}>Hormonal / Thyroid Medication</option>
+                <option value="Mental Health Medication" {% if 'Mental Health Medication' in v %}selected{% endif %}>Mental Health Medication (SSRIs, etc.)</option>
+                <option value="Supplements" {% if 'Supplements' in v %}selected{% endif %}>Supplements (Vitamins, Protein, Omega-3, etc.)</option>
+                <option value="Other" {% if 'Other' in v %}selected{% endif %}>Other</option>
+            </select><br>
+        {% elif k == 'injuries' %}
+            Injuries:<br>
+            {% set v = v if v is not none else [] %}
+            <select name="injuries" id="injuries" multiple size="7">
+                <option value="None" {% if 'None' in v %}selected{% endif %}>None</option>
+                <option value="Back Pain" {% if 'Back Pain' in v %}selected{% endif %}>Back Pain / Spine Issues</option>
+                <option value="Knee Injury" {% if 'Knee Injury' in v %}selected{% endif %}>Knee Injury</option>
+                <option value="Shoulder Injury" {% if 'Shoulder Injury' in v %}selected{% endif %}>Shoulder Injury</option>
+                <option value="Ankle Injury" {% if 'Ankle Injury' in v %}selected{% endif %}>Ankle Injury</option>
+                <option value="Wrist/Elbow Injury" {% if 'Wrist/Elbow Injury' in v %}selected{% endif %}>Wrist/Elbow Injury</option>
+                <option value="Neck Pain" {% if 'Neck Pain' in v %}selected{% endif %}>Neck Pain</option>
+                <option value="Post-Surgery Recovery" {% if 'Post-Surgery Recovery' in v %}selected{% endif %}>Post-Surgery Recovery</option>
+                <option value="Other" {% if 'Other' in v %}selected{% endif %}>Other</option>
+            </select><br>
+        {% elif k == 'preferred_workout_days' %}
+            Preferred Workout/Rest Days (comma separated, e.g. Mon,Wed,Fri): <input name="preferred_workout_days" id="preferred_workout_days" value="{{ v }}"><br>
+        {% elif k == 'workout_time' %}
+            Preferred Workout Time: <input name="workout_time" id="workout_time" type="time" value="{{ v }}"><br>
+        {% elif k == 'goal_wizard' %}
+            Goal Wizard (SMART template): <textarea name="goal_wizard" id="goal_wizard">{{ v }}</textarea><br>
         {% else %}
             {{ k }}: <input name="{{ k }}" id="{{ k }}" value="{{ v }}" {% if k in ['age','height','weight','goal_weight'] %}type="number" min="1" required{% endif %}><br>
         {% endif %}

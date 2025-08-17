@@ -22,7 +22,13 @@ def init_db():
             goal_weight REAL,
             activity TEXT,
             diet TEXT,
-            fitness_goals TEXT
+            fitness_goals TEXT,
+            allergies TEXT,
+            dislikes TEXT,
+            foods_to_avoid TEXT,
+            preferred_workout_days TEXT,
+            workout_time TEXT,
+            goal_wizard TEXT
         );
         CREATE TABLE IF NOT EXISTS logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
