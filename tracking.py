@@ -1,46 +1,71 @@
-import json
-import os
+
+from db import get_db
 from datetime import date
 
-LOGS_FILE = 'logs.json'
+def log_activity(email, **kwargs):
+    log_date = kwargs.get('log_date')
+    log_day = kwargs.get('log_day')
+    db = get_db()
+    # Check if log already exists for this email and date
+    cur = db.execute('SELECT id FROM logs WHERE email=? AND log_date=?', (email, log_date))
+    row = cur.fetchone()
+    # Add columns if missing
+    try:
+        db.execute('ALTER TABLE logs ADD COLUMN breakfast TEXT')
+    except Exception: pass
+    try:
+        db.execute('ALTER TABLE logs ADD COLUMN lunch TEXT')
+    except Exception: pass
+    try:
+        db.execute('ALTER TABLE logs ADD COLUMN snacks TEXT')
+    except Exception: pass
+    try:
+        db.execute('ALTER TABLE logs ADD COLUMN dinner TEXT')
+    except Exception: pass
+    if row:
+        db.execute('''UPDATE logs SET breakfast=?, lunch=?, snacks=?, dinner=?, workout=?, water=?, sleep_hours=?, weight=?, measurements=?, notes=? WHERE email=? AND log_date=?''',
+            (
+                kwargs.get('breakfast'),
+                kwargs.get('lunch'),
+                kwargs.get('snacks'),
+                kwargs.get('dinner'),
+                kwargs.get('workout'),
+                kwargs.get('water'),
+                kwargs.get('sleep'),
+                kwargs.get('weight'),
+                kwargs.get('measurements'),
+                log_day,
+                email,
+                log_date
+            )
+        )
+    else:
+        db.execute('''INSERT INTO logs (email, log_date, breakfast, lunch, snacks, dinner, workout, water, sleep_hours, weight, measurements, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+            (
+                email,
+                log_date,
+                kwargs.get('breakfast'),
+                kwargs.get('lunch'),
+                kwargs.get('snacks'),
+                kwargs.get('dinner'),
+                kwargs.get('workout'),
+                kwargs.get('water'),
+                kwargs.get('sleep'),
+                kwargs.get('weight'),
+                kwargs.get('measurements'),
+                log_day
+            )
+        )
+    db.commit()
+    db.close()
 
-# Load all logs from file
-def load_logs():
-    if os.path.exists(LOGS_FILE):
-        with open(LOGS_FILE, 'r') as f:
-            return json.load(f)
-    return {}
-
-# Save all logs to file
-def save_logs(logs):
-    with open(LOGS_FILE, 'w') as f:
-        json.dump(logs, f, indent=2)
-
-# Add or update a log for a user and date
-def log_activity(email, log_date=None, meals=None, workout=None, water=None, sleep=None, weight=None, measurements=None):
-    logs = load_logs()
-    if not log_date:
-        log_date = str(date.today())
-    user_logs = logs.get(email, {})
-    entry = user_logs.get(log_date, {})
-    if meals is not None:
-        entry['meals'] = meals
-    if workout is not None:
-        entry['workout'] = workout
-    if water is not None:
-        entry['water'] = water
-    if sleep is not None:
-        entry['sleep'] = sleep
-    if weight is not None:
-        entry['weight'] = weight
-    if measurements is not None:
-        entry['measurements'] = measurements
-    user_logs[log_date] = entry
-    logs[email] = user_logs
-    save_logs(logs)
-    return True
-
-# Get all logs for a user
 def get_user_logs(email):
-    logs = load_logs()
-    return logs.get(email, {})
+    db = get_db()
+    cur = db.execute('SELECT * FROM logs WHERE email = ?', (email,))
+    logs = {}
+    for row in cur.fetchall():
+        log = dict(zip([col[0] for col in cur.description], row))
+        logs[log['date']] = log
+    db.close()
+    return logs

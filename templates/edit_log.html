@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit Log</title></head>
+<body>
+    <h2>Edit Log for {{ log_date }}</h2>
+    <form method="post">
+        Breakfast: <input name="breakfast" value="{{ log.breakfast or '' }}"> <br>
+        Lunch: <input name="lunch" value="{{ log.lunch or '' }}"> <br>
+        Snacks: <input name="snacks" value="{{ log.snacks or '' }}"> <br>
+        Dinner: <input name="dinner" value="{{ log.dinner or '' }}"> <br>
+        Workout: <input name="workout" value="{{ log.workout or '' }}"> <br>
+        Water Intake (ml): <input name="water" type="number" min="0" value="{{ log.water or '' }}"> <br>
+        Sleep (hours): <input name="sleep" type="number" min="0" max="24" value="{{ log.sleep or log.sleep_hours or '' }}"> <br>
+        Weight (kg): <input name="weight" type="number" step="0.1" min="0" value="{{ log.weight or '' }}"> <br>
+        Waist (cm): <input name="waist" type="number" step="0.1" min="0" value="{{ log.waist or '' }}"> <br>
+        Chest (cm): <input name="chest" type="number" step="0.1" min="0" value="{{ log.chest or '' }}"> <br>
+        Hips (cm): <input name="hips" type="number" step="0.1" min="0" value="{{ log.hips or '' }}"> <br>
+        Arms (cm): <input name="arms" type="number" step="0.1" min="0" value="{{ log.arms or '' }}"> <br>
+        Thighs (cm): <input name="thighs" type="number" step="0.1" min="0" value="{{ log.thighs or '' }}"> <br>
+        Neck (cm): <input name="neck" type="number" step="0.1" min="0" value="{{ log.neck or '' }}"> <br>
+        Shoulders (cm): <input name="shoulders" type="number" step="0.1" min="0" value="{{ log.shoulders or '' }}"> <br>
+        Measurements: <input name="measurements" value="{{ log.measurements or '' }}"> <br>
+        <button type="submit">Update Log</button>
+    </form>
+    <a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

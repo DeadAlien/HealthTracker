@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head><title>Register</title></head>
-<body>
-    <h2>Register</h2>
-    <form method="post">
-        Email: <input name="email" required><br>
-        Password: <input name="password" type="password" required><br>
+<head>
+    <title>Register</title>
+    <head>
+        <title>Register</title>
+    </head>
+    <form method="post" id="regForm" onsubmit="return validateRegForm(event)">
+        Email: <input name="email" id="email" type="email" required pattern="^[\w\.-]+@[\w\.-]+\.\w+$"><br>
+        Password: <input name="password" id="password" type="password" required minlength="6"><br>
         Mobile: <input name="mobile"><br>
-        Age: <input name="age"><br>
-        Gender: <input name="gender"><br>
-        Height (cm): <input name="height"><br>
-        Weight (kg): <input name="weight"><br>
-        Goal Weight (kg): <input name="goal_weight"><br>
+        Age: <input name="age" id="age" type="number" min="1" required><br>
+        Gender: <select name="gender" id="gender" required>
+            <option value="">Select</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+            <option value="Other">Other</option>
+        </select><br>
+        Height (cm): <input name="height" id="height" type="number" min="1" required><br>
+        Weight (kg): <input name="weight" id="weight" type="number" min="1" required><br>
+        Goal Weight (kg): <input name="goal_weight" id="goal_weight" type="number" min="1" required><br>
         Activity Level:
-        <select name="activity" required>
+        <select name="activity" id="activity" required>
             <option value="Sedentary">🛋️ Sedentary (Little or no exercise)</option>
             <option value="Lightly Active">🚶 Lightly Active (Light exercise 1–3 days/week)</option>
             <option value="Moderately Active">🏃 Moderately Active (Moderate exercise 3–5 days/week)</option>
@@ -21,7 +28,7 @@
             <option value="Super Active">🔥 Super Active (Intense training or physical job)</option>
         </select><br>
         Diet Preference:
-        <select name="diet" required>
+        <select name="diet" id="diet" required>
             <option value="High Protein">🍗 High Protein</option>
             <option value="Vegetarian">🥗 Vegetarian</option>
             <option value="Vegan">🥑 Vegan</option>
@@ -33,7 +40,7 @@
             <option value="No preference">🚫 No preference</option>
         </select><br>
         Fitness Goals (Choose one or more):<br>
-        <select name="fitness_goals" multiple size="5" required>
+        <select name="fitness_goals" id="fitness_goals" multiple size="5" required>
             <option value="Fat Loss">🔥 Fat Loss</option>
             <option value="Muscle Gain">💪 Muscle Gain</option>
             <option value="Weight Maintenance">⚖️ Weight Maintenance</option>
@@ -44,8 +51,66 @@
             <option value="Endurance / Stamina">🏃 Endurance / Stamina</option>
             <option value="Medical Rehabilitation">🩺 Medical Rehabilitation</option>
         </select><br>
-        <button type="submit">Register</button>
+    <span id="regError" style="color:red;"></span><br>
+    <button type="submit">Register</button>
     </form>
+    <!-- Pop-up messages handled by JS above -->
+    <script>
+    async function validateRegForm(event) {
+        let email = document.getElementById('email').value;
+        let password = document.getElementById('password').value;
+        let age = document.getElementById('age').value;
+        let height = document.getElementById('height').value;
+        let weight = document.getElementById('weight').value;
+        let goal_weight = document.getElementById('goal_weight').value;
+        let gender = document.getElementById('gender').value;
+        let activity = document.getElementById('activity').value;
+        let diet = document.getElementById('diet').value;
+        let mobile = document.getElementsByName('mobile')[0].value;
+        let fitness_goals = document.getElementById('fitness_goals').selectedOptions;
+        let error = '';
+        if (!email.match(/^[\w\.-]+@[\w\.-]+\.\w+$/)) error = 'Invalid email.';
+        else if (password.length < 6) error = 'Password must be at least 6 characters.';
+        else if (age <= 0 || height <= 0 || weight <= 0 || goal_weight <= 0) error = 'Numbers must be positive.';
+        else if (!gender) error = 'Select gender.';
+        else if (!activity) error = 'Select activity.';
+        else if (!diet) error = 'Select diet.';
+        else if (fitness_goals.length === 0) error = 'Select at least one fitness goal.';
+        if (!error) {
+            // AJAX check for email/mobile uniqueness
+            let resp = await fetch('/check-unique?email=' + encodeURIComponent(email) + '&mobile=' + encodeURIComponent(mobile));
+            let data = await resp.json();
+            if (!data.email_unique) error = 'Email already registered.';
+            else if (!data.mobile_unique) error = 'Mobile number already registered.';
+        }
+        if (error) {
+            document.getElementById('regError').innerText = error;
+            alert(error); // Show pop-up for frontend validation errors
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+    </script>
     <a href="/login">Already have an account? Login</a>
+</body>
+<script>
+// Show pop-up if backend flashes a message
+window.onload = function() {
+    var msg = [];
+    try {
+        msg = {{ get_flashed_messages()|tojson|safe }};
+    } catch (e) {}
+    if (msg && msg.length > 0) {
+        // If registration was successful, show success pop-up and redirect to login
+        if (msg[0].toLowerCase().includes('success')) {
+            alert(msg[0]);
+            window.location.href = '/login';
+        } else {
+            alert(msg[0]);
+        }
+    }
+};
+</script>
 </body>
 </html>

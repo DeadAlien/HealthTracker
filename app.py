@@ -1,3 +1,5 @@
+
+from flask import jsonify
 from guidance import get_fitness_advice, get_goal_feedback
 from tracking import log_activity, get_user_logs
 from plan_generator import generate_routine
@@ -8,6 +10,70 @@ import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+
+# AJAX endpoint for frontend uniqueness check
+@app.route('/check-unique')
+def check_unique():
+    from models import load_users
+    email = request.args.get('email')
+    mobile = request.args.get('mobile')
+    users = load_users()
+    email_unique = email not in users
+    mobile_unique = True
+    if mobile:
+        for u in users.values():
+            if u.get('mobile') == mobile:
+                mobile_unique = False
+                break
+    return jsonify({'email_unique': email_unique, 'mobile_unique': mobile_unique})
+
+
+# Add API endpoints for Android
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    # Accept both form and JSON data
+    email = request.form.get('email')
+    password = request.form.get('password')
+    if not email or not password:
+        try:
+            data = request.get_json(force=True)
+            email = data.get('email')
+            password = data.get('password')
+        except Exception:
+            email = None
+            password = None
+    print(f"API LOGIN: email={email}, password={'***' if password else None}")
+    success, user_or_msg = login_user(email, password)
+    if success:
+        msg = 'Login successful!'
+        user = user_or_msg
+    else:
+        msg = user_or_msg if isinstance(user_or_msg, str) and user_or_msg else 'Login failed.'
+        user = None
+    return jsonify({'success': success, 'user': user, 'message': msg})
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.form.to_dict()
+    # fitness_goals may be a list, handle it
+    fitness_goals = request.form.getlist('fitness_goals')
+    if fitness_goals:
+        data['fitness_goals'] = fitness_goals
+    success, msg = register_user(**data)
+    return jsonify({'success': success, 'message': msg})
+
+# New: API endpoint for dashboard/profile data
+@app.route('/api/dashboard', methods=['GET'])
+def api_dashboard():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({'success': False, 'message': 'Email required', 'profile': None})
+    profile = get_user_profile(email)
+    if not profile:
+        return jsonify({'success': False, 'message': 'User not found', 'profile': None})
+    return jsonify({'success': True, 'profile': profile})
+
+# ...existing code...
 
 @app.route('/')
 def home():
@@ -69,20 +135,30 @@ def dashboard():
 
     # Handle activity/weight log POST
     if request.method == 'POST':
-        meals = request.form.get('meals')
+        breakfast = request.form.get('breakfast')
+        lunch = request.form.get('lunch')
+        snacks = request.form.get('snacks')
+        dinner = request.form.get('dinner')
         workout = request.form.get('workout')
         water = request.form.get('water')
         sleep = request.form.get('sleep')
         weight = request.form.get('weight')
         measurements = request.form.get('measurements')
-        log_activity(email, meals=meals, workout=workout, water=water, sleep=sleep, weight=weight, measurements=measurements)
+        log_date = request.form.get('date')
+        log_day = request.form.get('day')
+        log_activity(email, breakfast=breakfast, lunch=lunch, snacks=snacks, dinner=dinner, workout=workout, water=water, sleep=sleep, weight=weight, measurements=measurements, log_date=log_date, log_day=log_day)
         flash('Log saved!')
         return redirect(url_for('dashboard'))
 
     logs = get_user_logs(email)
     # Prepare progress summary (last 7 days)
-    sorted_dates = sorted(logs.keys(), reverse=True)
-    recent_logs = [dict(date=d, **logs[d]) for d in sorted_dates[:7]]
+    valid_dates = [d for d in logs.keys() if d is not None]
+    sorted_dates = sorted(valid_dates, reverse=True)
+    recent_logs = []
+    for d in sorted_dates[:7]:
+        log = dict(logs[d])
+        log['date'] = d  # overwrite or set date
+        recent_logs.append(log)
     advice = get_fitness_advice(profile)
     goal_feedback = get_goal_feedback(profile)
     return render_template('dashboard.html', email=email, profile=profile, routine=routine, logs=recent_logs, advice=advice, goal_feedback=goal_feedback)
