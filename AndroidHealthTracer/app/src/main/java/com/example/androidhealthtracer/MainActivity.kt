@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import android.content.Intent
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import com.example.androidhealthtracer.network.RetrofitClient
 import com.example.androidhealthtracer.network.LoginResponse
 import com.example.androidhealthtracer.ui.theme.AndroidHealthTracerTheme
@@ -59,6 +60,7 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
             modifier = Modifier
@@ -89,6 +91,16 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Login")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    val intent = Intent(context, RegisterActivity::class.java)
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Sign Up")
             }
         }
     }
