@@ -1,15 +1,31 @@
 
-from flask import jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from guidance import get_fitness_advice, get_goal_feedback
 from tracking import log_activity, get_user_logs
 from plan_generator import generate_routine
-from flask import Flask, render_template, request, redirect, url_for, session, flash
 from auth import register_user, login_user
-from profile import get_user_profile, update_user_profile
+from profile import get_user_profile as get_ht_user_profile, update_user_profile as update_ht_user_profile
 import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+
+# Android API: Generate routine (meals + workout)
+@app.route('/api/routine', methods=['GET'])
+def api_routine():
+    email = request.args.get('email')
+    period = request.args.get('period', 'weekly')
+    location = request.args.get('location', 'home')
+    if not email:
+        return jsonify({'success': False, 'message': 'Email required', 'routine': None})
+    profile = get_ht_user_profile(email)
+    if not profile:
+        return jsonify({'success': False, 'message': 'User not found', 'routine': None})
+    goal = profile.get('fitness_goals', ['Weight Maintenance'])
+    if isinstance(goal, list):
+        goal = goal[0] if goal else 'Weight Maintenance'
+    routine = generate_routine(profile, goal, location, period)
+    return jsonify({'success': True, 'routine': routine})
 
 # AJAX endpoint for frontend uniqueness check
 @app.route('/check-unique')
@@ -68,7 +84,7 @@ def api_dashboard():
     email = request.args.get('email')
     if not email:
         return jsonify({'success': False, 'message': 'Email required', 'profile': None})
-    profile = get_user_profile(email)
+    profile = get_ht_user_profile(email)
     if not profile:
         return jsonify({'success': False, 'message': 'User not found', 'profile': None})
     return jsonify({'success': True, 'profile': profile})
@@ -123,7 +139,7 @@ def dashboard():
     if 'email' not in session:
         return redirect(url_for('login'))
     email = session['email']
-    profile = get_user_profile(email)
+    profile = get_ht_user_profile(email)
     routine = None
     period = request.args.get('period', 'weekly')
     location = request.args.get('location', 'home')
@@ -167,7 +183,7 @@ def routine():
     if 'email' not in session:
         return redirect(url_for('login'))
     email = session['email']
-    profile = get_user_profile(email)
+    profile = get_ht_user_profile(email)
     period = request.args.get('period', 'weekly')
     location = request.args.get('location', 'home')
     goal = profile.get('fitness_goals', ['Weight Maintenance'])
@@ -181,7 +197,7 @@ def edit():
     if 'email' not in session:
         return redirect(url_for('login'))
     email = session['email']
-    profile = get_user_profile(email)
+    profile = get_ht_user_profile(email)
     if request.method == 'POST':
         updates = {}
         for field in profile:
@@ -192,7 +208,7 @@ def edit():
             if val:
                 updates[field] = val
         if updates:
-            update_user_profile(email, **updates)
+            update_ht_user_profile(email, **updates)
             flash('Profile updated!')
             return redirect(url_for('dashboard'))
     return render_template('edit.html', profile=profile)

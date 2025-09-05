@@ -31,6 +31,10 @@
             android:name=".RegisterActivity"
             android:exported="true"
             android:label="Register" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="true"
+            android:label="Edit Profile" />
     </application>
 
 </manifest>
