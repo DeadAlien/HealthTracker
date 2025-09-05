@@ -1,5 +1,5 @@
 from auth import register_user, login_user
-from profile import get_user_profile, update_user_profile
+from user_profile import get_user_profile, update_user_profile
 
 def main():
     while True:

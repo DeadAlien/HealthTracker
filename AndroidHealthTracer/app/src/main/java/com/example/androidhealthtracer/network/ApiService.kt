@@ -35,4 +35,7 @@ interface ApiService {
 
     @GET("delete_log")
     fun deleteLog(@Query("date") date: String, @Query("email") email: String): Call<LogResponse>
+    @FormUrlEncoded
+    @POST("api/profile")
+    fun updateProfile(@Query("email") email: String, @FieldMap params: Map<String, String>): Call<DashboardResponse>
 }

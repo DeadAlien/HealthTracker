@@ -1,10 +1,9 @@
-
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from guidance import get_fitness_advice, get_goal_feedback
 from tracking import log_activity, get_user_logs
 from plan_generator import generate_routine
 from auth import register_user, login_user
-from profile import get_user_profile as get_ht_user_profile, update_user_profile as update_ht_user_profile
+from user_profile import get_user_profile as get_ht_user_profile, update_user_profile as update_ht_user_profile
 import os
 
 app = Flask(__name__)
@@ -89,7 +88,18 @@ def api_dashboard():
         return jsonify({'success': False, 'message': 'User not found', 'profile': None})
     return jsonify({'success': True, 'profile': profile})
 
-# ...existing code...
+# New: API endpoint for updating profile data
+@app.route('/api/profile', methods=['POST'])
+def api_update_profile():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({'success': False, 'message': 'Email required'})
+    data = request.form.to_dict()
+    success = update_ht_user_profile(email, **data)
+    if success:
+        return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to update profile'})
 
 @app.route('/')
 def home():

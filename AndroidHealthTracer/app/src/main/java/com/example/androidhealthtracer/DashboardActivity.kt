@@ -131,12 +131,12 @@ fun DashboardScreen(email: String) {
             Row {
                 Text("Period:", modifier = Modifier.align(Alignment.CenterVertically))
                 Spacer(modifier = Modifier.width(8.dp))
-                DropdownMenuBox(options = listOf("daily", "weekly", "on-demand"), selected = period, onSelect = { period = it })
+                DropdownMenuComponent(options = listOf("daily", "weekly", "on-demand"), selected = period, onSelect = { period = it })
             }
             Row {
                 Text("Workout Location:", modifier = Modifier.align(Alignment.CenterVertically))
                 Spacer(modifier = Modifier.width(8.dp))
-                DropdownMenuBox(options = listOf("home", "gym"), selected = location, onSelect = { location = it })
+                DropdownMenuComponent(options = listOf("home", "gym"), selected = location, onSelect = { location = it })
             }
             Button(
                 onClick = {
@@ -199,87 +199,22 @@ fun DashboardScreen(email: String) {
     }
 }
 
-// EditProfileActivity for navigation (top-level)
-class EditProfileActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val email = intent.getStringExtra("email") ?: ""
-        setContent {
-            AndroidHealthTracerTheme {
-                EditProfileScreen(email = email, onBack = { finish() })
-            }
-        }
-    }
-}
-
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(email: String, onBack: () -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
-    var activityLevel by remember { mutableStateOf("") }
-    var diet by remember { mutableStateOf("") }
-    var fitnessGoals by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
-    var loading by remember { mutableStateOf(false) }
-
-    // Optionally: Fetch current profile data here and prefill fields
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Edit Profile") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Top
-        ) {
-            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = age, onValueChange = { age = it }, label = { Text("Age") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = gender, onValueChange = { gender = it }, label = { Text("Gender") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = activityLevel, onValueChange = { activityLevel = it }, label = { Text("Activity Level") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = diet, onValueChange = { diet = it }, label = { Text("Diet") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = fitnessGoals, onValueChange = { fitnessGoals = it }, label = { Text("Fitness Goals") }, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    loading = true
-                    // TODO: Implement save profile logic (call backend API)
-                    message = "Profile updated! (not yet saved to backend)"
-                    loading = false
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !loading
-            ) {
-                Text(if (loading) "Saving..." else "Save")
-            }
-            if (message.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(message, color = MaterialTheme.colorScheme.primary)
-            }
-        }
-    }
-}
-@Composable
-fun DropdownMenuBox(options: List<String>, selected: String, onSelect: (String) -> Unit) {
+fun DropdownMenuComponent(
+    options: List<String>,
+    selected: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var expanded by remember { mutableStateOf(false) }
-    Box {
+    Box(modifier = modifier) {
         OutlinedTextField(
             value = selected,
             onValueChange = {},
             readOnly = true,
-            modifier = Modifier.width(120.dp).clickable { expanded = true },
+            modifier = Modifier
+                .width(150.dp)
+                .clickable { expanded = true },
             label = { Text("Select") },
             trailingIcon = {
                 IconButton(onClick = { expanded = !expanded }) {
@@ -289,10 +224,13 @@ fun DropdownMenuBox(options: List<String>, selected: String, onSelect: (String) 
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
-                DropdownMenuItem(text = { Text(option) }, onClick = {
-                    onSelect(option)
-                    expanded = false
-                })
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onSelect(option)
+                        expanded = false
+                    }
+                )
             }
         }
     }
