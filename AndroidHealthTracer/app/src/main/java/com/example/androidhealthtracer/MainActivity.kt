@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import android.content.Intent
 import android.util.Log
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import com.example.androidhealthtracer.network.RetrofitClient
 import com.example.androidhealthtracer.network.LoginResponse
@@ -23,19 +24,48 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : ComponentActivity() {
+
+    private val PREFS_NAME = "login_prefs"
+    private val KEY_EMAIL = "email"
+    private val KEY_PASSWORD = "password"
+    private val KEY_REMEMBER = "rememberMe"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedEmail = prefs.getString(KEY_EMAIL, "") ?: ""
+        val savedPassword = prefs.getString(KEY_PASSWORD, "") ?: ""
+        val savedRemember = prefs.getBoolean(KEY_REMEMBER, false)
         setContent {
             AndroidHealthTracerTheme {
-                LoginScreen { email, password ->
-                    login(email, password)
-                }
+                LoginScreen(
+                    onLogin = { email, password, rememberMe ->
+                        login(email, password, rememberMe)
+                    },
+                    savedEmail = savedEmail,
+                    savedPassword = savedPassword,
+                    savedRememberMe = savedRemember
+                )
             }
         }
     }
 
-    private fun login(email: String, password: String) {
+    private fun login(email: String, password: String, rememberMe: Boolean) {
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        if (rememberMe) {
+            prefs.edit()
+                .putString(KEY_EMAIL, email)
+                .putString(KEY_PASSWORD, password)
+                .putBoolean(KEY_REMEMBER, true)
+                .apply()
+        } else {
+            prefs.edit()
+                .remove(KEY_EMAIL)
+                .remove(KEY_PASSWORD)
+                .putBoolean(KEY_REMEMBER, false)
+                .apply()
+        }
         RetrofitClient.instance.login(email, password).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful && response.body()?.success == true) {
@@ -56,9 +86,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginScreen(onLogin: (String, String) -> Unit) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    onLogin: (String, String, Boolean) -> Unit,
+    savedEmail: String = "",
+    savedPassword: String = "",
+    savedRememberMe: Boolean = false
+) {
+    var email by remember { mutableStateOf(savedEmail) }
+    var password by remember { mutableStateOf(savedPassword) }
+    var rememberMe by remember { mutableStateOf(savedRememberMe) }
 
     val context = LocalContext.current
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -85,9 +121,17 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation()
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = rememberMe,
+                    onCheckedChange = { rememberMe = it }
+                )
+                Text("Remember Me")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { onLogin(email, password) },
+                onClick = { onLogin(email, password, rememberMe) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Login")
