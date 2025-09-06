@@ -23,9 +23,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import retrofit2.Call
 import retrofit2.Callback
@@ -103,6 +108,7 @@ fun LoginScreen(
     var email by remember { mutableStateOf(savedEmail) }
     var password by remember { mutableStateOf(savedPassword) }
     var rememberMe by remember { mutableStateOf(savedRememberMe) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
@@ -145,7 +151,9 @@ fun LoginScreen(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon") },
+                    shape = RoundedCornerShape(50)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
@@ -153,7 +161,20 @@ fun LoginScreen(
                     onValueChange = { password = it },
                     label = { Text("Password") },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
+                    trailingIcon = {
+                        val image = if (passwordVisible)
+                            Icons.Filled.Visibility
+                        else Icons.Filled.VisibilityOff
+
+                        val description = if (passwordVisible) "Hide password" else "Show password"
+
+                        IconButton(onClick = {passwordVisible = !passwordVisible}){
+                            Icon(imageVector  = image, description)
+                        }
+                    },
+                    shape = RoundedCornerShape(50)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
