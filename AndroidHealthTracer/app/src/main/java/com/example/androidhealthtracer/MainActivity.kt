@@ -179,14 +179,26 @@ fun LoginScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Checkbox(
-                        checked = rememberMe,
-                        onCheckedChange = { rememberMe = it }
-                    )
-                    Text("Remember Me")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(
+                            checked = rememberMe,
+                            onCheckedChange = { rememberMe = it }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Remember Me", color = Color.Gray)
+                    }
+                    TextButton(
+                        onClick = {
+                            val intent = Intent(context, ForgotPasswordActivity::class.java)
+                            context.startActivity(intent)
+                        }
+                    ) {
+                        Text("Forgot Password?")
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -215,16 +227,6 @@ fun LoginScreen(
                     border = BorderStroke(1.dp, Color.White)
                 ) {
                     Text("Sign Up", color = Color.White)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    onClick = {
-                        val intent = Intent(context, ForgotPasswordActivity::class.java)
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Forgot Password?")
                 }
             }
         }
