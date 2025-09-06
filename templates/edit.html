@@ -3,7 +3,12 @@
 <head><title>Edit Profile</title></head>
 <body>
     <h2>Edit Profile</h2>
-    <form method="post" id="editForm" onsubmit="return validateEditForm()">
+    <form method="post" id="editForm" onsubmit="return validateEditForm()" enctype="multipart/form-data">
+        <label for="profile_picture">Profile Picture:</label><br>
+        {% if profile.profile_picture %}
+            <img src="{{ url_for('static', filename=profile.profile_picture) }}" width="100"><br>
+        {% endif %}
+        <input type="file" name="profile_picture" id="profile_picture"><br><br>
     {% for k, v in profile.items() %}
         {% if k == 'activity' %}
             Activity Level:

@@ -1,4 +1,3 @@
-
 from db import get_db, dict_from_row
 
 def load_users():
@@ -47,14 +46,25 @@ def update_user(email, updates):
     fields = []
     values = []
     for k, v in updates.items():
-        fields.append(f"{k}=?")
-        # Convert lists to comma-separated strings for new fields
-        if k in ['fitness_goals', 'allergies', 'dislikes', 'foods_to_avoid', 'preferred_workout_days'] and isinstance(v, list):
-            values.append(','.join(v))
-        else:
+        if k == 'profile_picture':
+            # Special handling for profile picture to store the path
+            fields.append("profile_picture=?")
             values.append(v)
+        else:
+            fields.append(f"{k}=?")
+            # Convert lists to comma-separated strings for new fields
+            if k in ['fitness_goals', 'allergies', 'dislikes', 'foods_to_avoid', 'preferred_workout_days'] and isinstance(v, list):
+                values.append(','.join(v))
+            else:
+                values.append(v)
+
+    if not fields:
+        return
+
+    query = f"UPDATE users SET {', '.join(fields)} WHERE email=?"
     values.append(email)
-    db.execute(f'UPDATE users SET {", ".join(fields)} WHERE email=?', values)
+    
+    db.execute(query, tuple(values))
     db.commit()
     db.close()
 

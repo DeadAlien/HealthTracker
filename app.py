@@ -6,9 +6,17 @@ from plan_generator import generate_routine
 from auth import register_user, login_user
 from user_profile import get_user_profile as get_ht_user_profile, update_user_profile as update_ht_user_profile
 import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Android API: Generate routine (meals + workout)
 @app.route('/api/routine', methods=['GET'])
@@ -95,7 +103,17 @@ def api_update_profile():
     email = request.args.get('email')
     if not email:
         return jsonify({'success': False, 'message': 'Email required'})
+    
     data = request.form.to_dict()
+    
+    if 'profile_picture' in request.files:
+        file = request.files['profile_picture']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            data['profile_picture'] = 'uploads/' + filename
+
     success = update_ht_user_profile(email, **data)
     if success:
         return jsonify({'success': True, 'message': 'Profile updated successfully'})
@@ -218,6 +236,15 @@ def edit():
                 val = request.form.get(field)
             if val:
                 updates[field] = val
+        
+        if 'profile_picture' in request.files:
+            file = request.files['profile_picture']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                updates['profile_picture'] = 'uploads/' + filename
+
         if updates:
             update_ht_user_profile(email, **updates)
             flash('Profile updated!')
