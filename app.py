@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from werkzeug.security import generate_password_hash
 from guidance import get_fitness_advice, get_goal_feedback
 from tracking import log_activity, get_user_logs
 from plan_generator import generate_routine
@@ -222,6 +223,52 @@ def edit():
             flash('Profile updated!')
             return redirect(url_for('dashboard'))
     return render_template('edit.html', profile=profile)
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        # In a real app, you'd send an email with a token.
+        # For now, we'll just redirect to the reset page.
+        return redirect(url_for('reset_password', email=email))
+    return render_template('forgot_password.html')
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    email = request.args.get('email')
+    if request.method == 'POST':
+        email = request.form['email']
+        otp = request.form['otp']
+        new_password = request.form['password']
+        if otp == '123456': # Hardcoded OTP
+            from models import update_user
+            hashed_password = generate_password_hash(new_password)
+            update_user(email, {'password': hashed_password})
+            flash('Password updated successfully!')
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid OTP!')
+    return render_template('reset_password.html', email=email)
+
+
+@app.route('/api/reset_password', methods=['POST'])
+def api_reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    otp = data.get('otp')
+    new_password = data.get('password')
+
+    if not all([email, otp, new_password]):
+        return jsonify({'success': False, 'message': 'Email, OTP, and new password are required.'})
+
+    if otp == '123456':  # Hardcoded OTP
+        from models import update_user
+        hashed_password = generate_password_hash(new_password)
+        update_user(email, {'password': hashed_password})
+        return jsonify({'success': True, 'message': 'Password updated successfully!'})
+    else:
+        return jsonify({'success': False, 'message': 'Invalid OTP!'})
+
 
 @app.route('/logout')
 def logout():

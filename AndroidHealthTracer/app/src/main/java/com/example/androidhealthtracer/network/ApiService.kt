@@ -38,4 +38,7 @@ interface ApiService {
     @FormUrlEncoded
     @POST("api/profile")
     fun updateProfile(@Query("email") email: String, @FieldMap params: Map<String, String>): Call<DashboardResponse>
+
+    @POST("api/reset_password")
+    fun resetPassword(@Body params: Map<String, String>): Call<LoginResponse>
 }

@@ -35,6 +35,10 @@
             android:name=".EditProfileActivity"
             android:exported="true"
             android:label="Edit Profile" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="true"
+            android:label="Forgot Password" />
     </application>
 
 </manifest>

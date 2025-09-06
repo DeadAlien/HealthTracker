@@ -15,6 +15,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.androidhealthtracer.network.RetrofitClient
 import com.example.androidhealthtracer.network.LoginResponse
 import com.example.androidhealthtracer.ui.theme.AndroidHealthTracerTheme
@@ -146,6 +147,24 @@ fun LoginScreen(
             ) {
                 Text("Sign Up")
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(
+                onClick = {
+                    val intent = Intent(context, ForgotPasswordActivity::class.java)
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Forgot Password?")
+            }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    AndroidHealthTracerTheme {
+        LoginScreen(onLogin = { _, _, _ -> })
     }
 }
