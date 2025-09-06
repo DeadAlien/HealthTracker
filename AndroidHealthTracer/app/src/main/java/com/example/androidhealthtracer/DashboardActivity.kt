@@ -33,6 +33,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.Image
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.Card
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.graphics.vector.ImageVector
 
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,31 +89,9 @@ fun DashboardScreen(email: String) {
         ) {
             HeaderSection(email = email, profile = profile)
             Column(modifier = Modifier.padding(16.dp)) {
-                if (profile != null) {
-                    Text(text = "Your Profile", style = MaterialTheme.typography.titleMedium)
-                    profile!!.forEach { (key, value) ->
-                        Text(text = "$key: ${if (key == "fitness_goals" && value is String) value.replace(",", ", ") else value}")
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                val context = LocalContext.current
-                Row {
-                    Button(onClick = {
-                        // Navigate to EditProfileActivity
-                        val intent = Intent(context, EditProfileActivity::class.java)
-                        intent.putExtra("email", email)
-                        context.startActivity(intent)
-                    }, modifier = Modifier.padding(end = 8.dp)) {
-                        Text("Edit Profile")
-                    }
-                    Button(onClick = {
-                        // Logout: clear activity stack and return to login
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        context.startActivity(intent)
-                    }) {
-                        Text("Logout")
-                    }
+                val currentProfile = profile
+                if (currentProfile != null) {
+                    ProfileSection(profile = currentProfile, email = email)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = "Log Daily Activities", style = MaterialTheme.typography.titleMedium)
@@ -207,6 +190,147 @@ fun DashboardScreen(email: String) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ProfileSection(profile: Map<String, Any>, email: String) {
+    val context = LocalContext.current
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Personal Info
+            Text("Personal Info", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileInfoRow(label = "Age", value = profile["age"]?.toString())
+            ProfileInfoRow(label = "Gender", value = profile["gender"]?.toString())
+            ProfileInfoRow(label = "Height", value = profile["height"]?.toString()?.let { "$it cm" })
+            ProfileInfoRow(label = "⚖️ Weight", value = profile["weight"]?.toString()?.let { "$it kg" })
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Health Info
+            Text("Health Info", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            ProfileInfoRow(label = "🍎 Diet", value = profile["diet"]?.toString())
+            ProfileInfoRow(label = "Allergies", value = formatList(profile["allergies"]))
+            ProfileInfoRow(label = "🏋️ Fitness Goals", value = formatList(profile["fitness_goals"]))
+            ProfileInfoRow(label = "🚫 Foods to Avoid", value = formatList(profile["foods_to_avoid"]))
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Weight Progress
+            val currentWeight = profile["weight"]?.toString()?.toFloatOrNull()
+            val goalWeight = profile["goal_weight"]?.toString()?.toFloatOrNull()
+            if (currentWeight != null && goalWeight != null && goalWeight > 0) {
+                Text("Weight Progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                WeightProgressBar(currentWeight = currentWeight, goalWeight = goalWeight)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Action Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+            ) {
+                GradientButton(
+                    text = "Edit Profile",
+                    icon = Icons.Default.Edit,
+                    onClick = {
+                        val intent = Intent(context, EditProfileActivity::class.java)
+                        intent.putExtra("email", email)
+                        context.startActivity(intent)
+                    }
+                )
+                GradientButton(
+                    text = "Logout",
+                    icon = Icons.Default.ExitToApp,
+                    onClick = {
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        context.startActivity(intent)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun GradientButton(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        contentPadding = PaddingValues(),
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = text, color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun ProfileInfoRow(label: String, value: String?) {
+    if (!value.isNullOrBlank()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = label, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(text = value)
+        }
+    }
+}
+
+@Composable
+fun WeightProgressBar(currentWeight: Float, goalWeight: Float) {
+    val progress = (currentWeight / goalWeight).coerceIn(0f, 1f)
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        LinearProgressIndicator(
+            progress = progress,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Current: $currentWeight kg / Goal: $goalWeight kg")
+    }
+}
+
+fun formatList(value: Any?): String? {
+    return when (value) {
+        is List<*> -> value.joinToString(", ")
+        is String -> value
+        else -> null
     }
 }
 
