@@ -27,6 +27,18 @@
             android:name=".DashboardActivity"
             android:exported="true"
             android:label="Dashboard" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true"
+            android:label="Register" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="true"
+            android:label="Edit Profile" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="true"
+            android:label="Forgot Password" />
     </application>
 
 </manifest>
