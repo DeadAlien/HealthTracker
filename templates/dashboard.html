@@ -12,8 +12,12 @@
 <body>
     <h2>Welcome, {{ email }}</h2>
     <h3>Your Profile</h3>
+    {% if profile.profile_picture %}
+        <img src="{{ url_for('static', filename=profile.profile_picture) }}" alt="Profile Picture" width="100">
+    {% endif %}
     <ul>
     {% for k, v in profile.items() %}
+        {% if k != 'profile_picture' %}
         <li><b>{{ k }}:</b>
             {% if k == 'fitness_goals' and v %}
                 {{ v|join(', ') }}
@@ -21,6 +25,7 @@
                 {{ v }}
             {% endif %}
         </li>
+        {% endif %}
     {% endfor %}
     </ul>
     <a href="/edit">Edit Profile</a> | <a href="/logout">Logout</a>

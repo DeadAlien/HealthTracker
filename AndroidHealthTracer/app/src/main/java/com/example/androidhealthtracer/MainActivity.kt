@@ -22,11 +22,28 @@ import com.example.androidhealthtracer.ui.theme.AndroidHealthTracerTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.sp
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.compose.foundation.BorderStroke
 
 class MainActivity : ComponentActivity() {
 
@@ -100,6 +117,11 @@ fun LoginScreen(
     var email by remember { mutableStateOf(savedEmail) }
     var password by remember { mutableStateOf(savedPassword) }
     var rememberMe by remember { mutableStateOf(savedRememberMe) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        visible = true
+    }
 
     val context = LocalContext.current
 
@@ -116,72 +138,141 @@ fun LoginScreen(
             ),
         contentAlignment = Alignment.Center
     ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        AnimatedVisibility(
+            visible = visible,
+            enter = slideInVertically(
+                initialOffsetY = { it / 2 },
+                animationSpec = tween(durationMillis = 500)
+            ) + fadeIn(animationSpec = tween(durationMillis = 500))
         ) {
-            Column(
+            Card(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Text(text = "HealthTracker Login", style = MaterialTheme.typography.headlineMedium)
-                Spacer(modifier = Modifier.height(24.dp))
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Checkbox(
-                        checked = rememberMe,
-                        onCheckedChange = { rememberMe = it }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Heart Icon", tint = Color.Red)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "HealthTracker Login",
+                            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon") },
+                        shape = RoundedCornerShape(50),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color(0xFF448AFF),
+                            unfocusedIndicatorColor = Color.Gray,
+                            focusedLabelColor = Color(0xFF448AFF),
+                            cursorColor = Color(0xFF448AFF)
+                        )
                     )
-                    Text("Remember Me")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = { onLogin(email, password, rememberMe) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Login")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        val intent = Intent(context, RegisterActivity::class.java)
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Sign Up")
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    onClick = {
-                        val intent = Intent(context, ForgotPasswordActivity::class.java)
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Forgot Password?")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
+                        trailingIcon = {
+                            val image = if (passwordVisible)
+                                Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff
+
+                            val description = if (passwordVisible) "Hide password" else "Show password"
+
+                            IconButton(onClick = {passwordVisible = !passwordVisible}){
+                                Icon(imageVector  = image, description)
+                            }
+                        },
+                        shape = RoundedCornerShape(50),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color(0xFF448AFF),
+                            unfocusedIndicatorColor = Color.Gray,
+                            focusedLabelColor = Color(0xFF448AFF),
+                            cursorColor = Color(0xFF448AFF)
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Switch(
+                                checked = rememberMe,
+                                onCheckedChange = { rememberMe = it }
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Remember Me", color = Color.Gray)
+                        }
+                        TextButton(
+                            onClick = {
+                                val intent = Intent(context, ForgotPasswordActivity::class.java)
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Text("Forgot Password?")
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    val loginGradient = Brush.horizontalGradient(
+                        colors = listOf(Color(0xFF448AFF), Color(0xFF673AB7)) // Blue to Purple
+                    )
+                    val loginInteractionSource = remember { MutableInteractionSource() }
+                    val isLoginPressed by loginInteractionSource.collectIsPressedAsState()
+                    val loginScale by animateFloatAsState(if (isLoginPressed) 0.98f else 1f, label = "")
+
+                    Button(
+                        onClick = { onLogin(email, password, rememberMe) },
+                        shape = RoundedCornerShape(50),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .scale(loginScale)
+                            .background(loginGradient, shape = RoundedCornerShape(50)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+                        interactionSource = loginInteractionSource
+                    ) {
+                        Text("Login", color = Color.White)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    val signUpInteractionSource = remember { MutableInteractionSource() }
+                    val isSignUpPressed by signUpInteractionSource.collectIsPressedAsState()
+                    val signUpScale by animateFloatAsState(if (isSignUpPressed) 0.98f else 1f, label = "")
+
+                    OutlinedButton(
+                        onClick = {
+                            val intent = Intent(context, RegisterActivity::class.java)
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .scale(signUpScale),
+                        shape = RoundedCornerShape(50),
+                        border = BorderStroke(1.dp, Color.White),
+                        interactionSource = signUpInteractionSource
+                    ) {
+                        Text("Sign Up", color = Color.White)
+                    }
                 }
             }
         }

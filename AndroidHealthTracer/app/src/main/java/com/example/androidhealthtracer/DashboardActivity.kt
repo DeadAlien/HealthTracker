@@ -22,6 +22,17 @@ import com.example.androidhealthtracer.ui.theme.AndroidHealthTracerTheme
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import androidx.compose.foundation.Image
 
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,133 +79,197 @@ fun DashboardScreen(email: String) {
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-            Text(text = "Welcome, $email", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            if (profile != null) {
-                Text(text = "Your Profile", style = MaterialTheme.typography.titleMedium)
-                profile!!.forEach { (key, value) ->
-                    Text(text = "$key: ${if (key == "fitness_goals" && value is String) value.replace(",", ", ") else value}")
+            HeaderSection(email = email, profile = profile)
+            Column(modifier = Modifier.padding(16.dp)) {
+                if (profile != null) {
+                    Text(text = "Your Profile", style = MaterialTheme.typography.titleMedium)
+                    profile!!.forEach { (key, value) ->
+                        Text(text = "$key: ${if (key == "fitness_goals" && value is String) value.replace(",", ", ") else value}")
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            val context = LocalContext.current
-            Row {
-                Button(onClick = {
-                    // Navigate to EditProfileActivity
-                    val intent = Intent(context, EditProfileActivity::class.java)
-                    intent.putExtra("email", email)
-                    context.startActivity(intent)
-                }, modifier = Modifier.padding(end = 8.dp)) {
-                    Text("Edit Profile")
-                }
-                Button(onClick = {
-                    // Logout: clear activity stack and return to login
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    context.startActivity(intent)
-                }) {
-                    Text("Logout")
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Log Daily Activities", style = MaterialTheme.typography.titleMedium)
-            // Daily log form fields (simplified)
-            var breakfast by remember { mutableStateOf("") }
-            var lunch by remember { mutableStateOf("") }
-            var snacks by remember { mutableStateOf("") }
-            var dinner by remember { mutableStateOf("") }
-            var workout by remember { mutableStateOf("") }
-            var water by remember { mutableStateOf("") }
-            var sleep by remember { mutableStateOf("") }
-            var weight by remember { mutableStateOf("") }
-            OutlinedTextField(value = breakfast, onValueChange = { breakfast = it }, label = { Text("Breakfast") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = lunch, onValueChange = { lunch = it }, label = { Text("Lunch") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = snacks, onValueChange = { snacks = it }, label = { Text("Snacks") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = dinner, onValueChange = { dinner = it }, label = { Text("Dinner") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = workout, onValueChange = { workout = it }, label = { Text("Workout") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = water, onValueChange = { water = it }, label = { Text("Water Intake (ml)") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = sleep, onValueChange = { sleep = it }, label = { Text("Sleep (hours)") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = weight, onValueChange = { weight = it }, label = { Text("Weight (kg)") }, modifier = Modifier.fillMaxWidth())
-            Button(onClick = { /* TODO: Save log to backend */ }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                Text("Save Log")
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Recent Progress (Last 7 Days)", style = MaterialTheme.typography.titleMedium)
-            // TODO: Replace with real log data from backend
-            Text("No logs available.")
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Generate Personalized Routine", style = MaterialTheme.typography.titleMedium)
-            Row {
-                Text("Period:", modifier = Modifier.align(Alignment.CenterVertically))
-                Spacer(modifier = Modifier.width(8.dp))
-                DropdownMenuComponent(options = listOf("daily", "weekly", "on-demand"), selected = period, onSelect = { period = it })
-            }
-            Row {
-                Text("Workout Location:", modifier = Modifier.align(Alignment.CenterVertically))
-                Spacer(modifier = Modifier.width(8.dp))
-                DropdownMenuComponent(options = listOf("home", "gym"), selected = location, onSelect = { location = it })
-            }
-            Button(
-                onClick = {
-                    routineLoading = true
-                    routineError = null
-                    routine = null
-                    RetrofitClient.instance.getRoutine(email, period, location).enqueue(object : retrofit2.Callback<com.example.androidhealthtracer.network.RoutineResponse> {
-                        override fun onResponse(
-                            call: Call<com.example.androidhealthtracer.network.RoutineResponse>,
-                            response: Response<com.example.androidhealthtracer.network.RoutineResponse>
-                        ) {
-                            routineLoading = false
-                            if (response.isSuccessful && response.body()?.success == true) {
-                                routine = response.body()?.routine
-                            } else {
-                                routineError = response.body()?.message ?: "Failed to generate routine."
-                            }
-                        }
-                        override fun onFailure(
-                            call: Call<com.example.androidhealthtracer.network.RoutineResponse>,
-                            t: Throwable
-                        ) {
-                            routineLoading = false
-                            routineError = t.message
-                        }
-                    })
-                },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            ) {
-                Text(if (routineLoading) "Generating..." else "Generate Routine")
-            }
-            if (routineError != null) {
-                Text(routineError ?: "", color = MaterialTheme.colorScheme.error)
-            }
-            if (routine != null) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Routine:", style = MaterialTheme.typography.titleMedium)
-                for (day in routine!!) {
-                    val dayName = day["day"]?.toString() ?: "Day"
-                    val meals = day["meals"] as? List<Map<String, Any>>
-                    val workout = day["workout"]
-                    Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                        Text(dayName, style = MaterialTheme.typography.titleSmall)
-                        if (meals != null) {
-                            Text("Meals:", style = MaterialTheme.typography.bodyMedium)
-                            for (meal in meals) {
-                                val mealName = meal["meal"]?.toString() ?: "Meal"
-                                val food = meal["food"]?.toString() ?: ""
-                                Text("- $mealName: $food", style = MaterialTheme.typography.bodySmall)
+                val context = LocalContext.current
+                Row {
+                    Button(onClick = {
+                        // Navigate to EditProfileActivity
+                        val intent = Intent(context, EditProfileActivity::class.java)
+                        intent.putExtra("email", email)
+                        context.startActivity(intent)
+                    }, modifier = Modifier.padding(end = 8.dp)) {
+                        Text("Edit Profile")
+                    }
+                    Button(onClick = {
+                        // Logout: clear activity stack and return to login
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        context.startActivity(intent)
+                    }) {
+                        Text("Logout")
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "Log Daily Activities", style = MaterialTheme.typography.titleMedium)
+                // Daily log form fields (simplified)
+                var breakfast by remember { mutableStateOf("") }
+                var lunch by remember { mutableStateOf("") }
+                var snacks by remember { mutableStateOf("") }
+                var dinner by remember { mutableStateOf("") }
+                var workout by remember { mutableStateOf("") }
+                var water by remember { mutableStateOf("") }
+                var sleep by remember { mutableStateOf("") }
+                var weight by remember { mutableStateOf("") }
+                OutlinedTextField(value = breakfast, onValueChange = { breakfast = it }, label = { Text("Breakfast") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = lunch, onValueChange = { lunch = it }, label = { Text("Lunch") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = snacks, onValueChange = { snacks = it }, label = { Text("Snacks") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = dinner, onValueChange = { dinner = it }, label = { Text("Dinner") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = workout, onValueChange = { workout = it }, label = { Text("Workout") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = water, onValueChange = { water = it }, label = { Text("Water Intake (ml)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = sleep, onValueChange = { sleep = it }, label = { Text("Sleep (hours)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = weight, onValueChange = { weight = it }, label = { Text("Weight (kg)") }, modifier = Modifier.fillMaxWidth())
+                Button(onClick = { /* TODO: Save log to backend */ }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                    Text("Save Log")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "Recent Progress (Last 7 Days)", style = MaterialTheme.typography.titleMedium)
+                // TODO: Replace with real log data from backend
+                Text("No logs available.")
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "Generate Personalized Routine", style = MaterialTheme.typography.titleMedium)
+                Row {
+                    Text("Period:", modifier = Modifier.align(Alignment.CenterVertically))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    DropdownMenuComponent(options = listOf("daily", "weekly", "on-demand"), selected = period, onSelect = { period = it })
+                }
+                Row {
+                    Text("Workout Location:", modifier = Modifier.align(Alignment.CenterVertically))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    DropdownMenuComponent(options = listOf("home", "gym"), selected = location, onSelect = { location = it })
+                }
+                Button(
+                    onClick = {
+                        routineLoading = true
+                        routineError = null
+                        routine = null
+                        RetrofitClient.instance.getRoutine(email, period, location).enqueue(object : retrofit2.Callback<com.example.androidhealthtracer.network.RoutineResponse> {
+                            override fun onResponse(
+                                call: Call<com.example.androidhealthtracer.network.RoutineResponse>,
+                                response: Response<com.example.androidhealthtracer.network.RoutineResponse>
+                            ) {
+                                routineLoading = false
+                                if (response.isSuccessful && response.body()?.success == true) {
+                                    routine = response.body()?.routine
+                                } else {
+                                    routineError = response.body()?.message ?: "Failed to generate routine."
+                                }
                             }
-                        }
-                        if (workout != null) {
-                            val workoutName = if (workout is Map<*, *>) workout["workout"].toString() else workout.toString()
-                            Text("Workout: $workoutName", style = MaterialTheme.typography.bodyMedium)
+                            override fun onFailure(
+                                call: Call<com.example.androidhealthtracer.network.RoutineResponse>,
+                                t: Throwable
+                            ) {
+                                routineLoading = false
+                                routineError = t.message
+                            }
+                        })
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                ) {
+                    Text(if (routineLoading) "Generating..." else "Generate Routine")
+                }
+                if (routineError != null) {
+                    Text(routineError ?: "", color = MaterialTheme.colorScheme.error)
+                }
+                if (routine != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Routine:", style = MaterialTheme.typography.titleMedium)
+                    for (day in routine!!) {
+                        val dayName = day["day"]?.toString() ?: "Day"
+                        val meals = day["meals"] as? List<Map<String, Any>>
+                        val workout = day["workout"]
+                        Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                            Text(dayName, style = MaterialTheme.typography.titleSmall)
+                            if (meals != null) {
+                                Text("Meals:", style = MaterialTheme.typography.bodyMedium)
+                                for (meal in meals) {
+                                    val mealName = meal["meal"]?.toString() ?: "Meal"
+                                    val food = meal["food"]?.toString() ?: ""
+                                    Text("- $mealName: $food", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                            if (workout != null) {
+                                val workoutName = if (workout is Map<*, *>) workout["workout"].toString() else workout.toString()
+                                Text("Workout: $workoutName", style = MaterialTheme.typography.bodyMedium)
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun HeaderSection(email: String, profile: Map<String, Any>?) {
+    val motivationalQuotes = listOf(
+        "Your body achieves what your mind believes 💪",
+        "The only bad workout is the one that didn't happen.",
+        "Push yourself, because no one else is going to do it for you."
+    )
+    val quote = remember { motivationalQuotes.random() }
+    val profilePictureUrl = profile?.get("profile_picture")?.toString()
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFF87CEEB), Color(0xFF00008B))
+                )
+            )
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (profilePictureUrl != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = "http://10.0.2.2:5000/$profilePictureUrl"),
+                        contentDescription = "Profile Avatar",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profile Avatar",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(Color.Gray.copy(alpha = 0.5f)),
+                        tint = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = email,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = quote,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
