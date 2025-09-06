@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.compose.foundation.BorderStroke
 
 class MainActivity : ComponentActivity() {
 
@@ -188,21 +189,32 @@ fun LoginScreen(
                     Text("Remember Me")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+
+                val loginGradient = Brush.horizontalGradient(
+                    colors = listOf(Color(0xFF448AFF), Color(0xFF673AB7)) // Blue to Purple
+                )
                 Button(
                     onClick = { onLogin(email, password, rememberMe) },
-                    modifier = Modifier.fillMaxWidth()
+                    shape = RoundedCornerShape(50),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(loginGradient, shape = RoundedCornerShape(50)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                 ) {
-                    Text("Login")
+                    Text("Login", color = Color.White)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
+                OutlinedButton(
                     onClick = {
                         val intent = Intent(context, RegisterActivity::class.java)
                         context.startActivity(intent)
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(50),
+                    border = BorderStroke(1.dp, Color.White)
                 ) {
-                    Text("Sign Up")
+                    Text("Sign Up", color = Color.White)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(
