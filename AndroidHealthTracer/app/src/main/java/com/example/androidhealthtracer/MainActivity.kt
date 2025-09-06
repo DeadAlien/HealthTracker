@@ -22,8 +22,11 @@ import com.example.androidhealthtracer.ui.theme.AndroidHealthTracerTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -129,7 +132,14 @@ fun LoginScreen(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "HealthTracker Login", style = MaterialTheme.typography.headlineMedium)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Favorite, contentDescription = "Heart Icon", tint = Color.Red)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "HealthTracker Login",
+                        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 OutlinedTextField(
                     value = email,
